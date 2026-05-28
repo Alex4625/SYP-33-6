@@ -33,7 +33,8 @@ function isRateLimited(request: NextRequest) {
   return false;
 }
 
-export async function middleware(request: NextRequest) {
+// ✅ Ganti "middleware" → "proxy"
+export async function proxy(request: NextRequest) {
   if (isRateLimited(request)) {
     return new NextResponse("Terlalu banyak percobaan. Silakan tunggu beberapa saat.", {
       status: 429,
