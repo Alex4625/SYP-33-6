@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 /**
  * Kirim email reset password dengan template Bahasa Indonesia.
  */
@@ -10,6 +8,8 @@ export async function sendPasswordResetEmail(
   resetLink: string,
   username: string,
 ): Promise<void> {
+  const resend = new Resend(process.env.RESEND_API_KEY); // ← pindah ke sini
+
   await resend.emails.send({
     from: "Alumni SYP-33-6 <onboarding@resend.dev>",
     to: email,
