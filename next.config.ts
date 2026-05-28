@@ -1,14 +1,15 @@
-import type { NextConfig } from "next";
+import type { OpenNextConfig } from "@opennextjs/cloudflare";
 
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
-    ],
+const config: OpenNextConfig = {
+  default: {
+    override: {
+      wrapper: "cloudflare-node",
+      converter: "edge",
+    },
+  },
+  middleware: {
+    external: true, // ← ini yang membuat proxy berjalan di edge Cloudflare
   },
 };
 
-export default nextConfig;
+export default config;
