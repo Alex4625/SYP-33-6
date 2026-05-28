@@ -33,8 +33,7 @@ function isRateLimited(request: NextRequest) {
   return false;
 }
 
-// ✅ Ganti "middleware" → "proxy"
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   if (isRateLimited(request)) {
     return new NextResponse("Terlalu banyak percobaan. Silakan tunggu beberapa saat.", {
       status: 429,
@@ -47,12 +46,14 @@ export async function proxy(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  const redirect = (path: string) => NextResponse.redirect(new URL(path, request.url));
+  const redirect = (path: string) =>
+    NextResponse.redirect(new URL(path, request.url));
 
   if ((pathname === "/login" || pathname === "/daftar") && token) {
     if (token.role === "ADMIN") return redirect("/admin");
     if (token.status === "APPROVED") return redirect("/dashboard");
-    if (token.status === "PENDING" || token.status === "REJECTED") return redirect("/status-akun");
+    if (token.status === "PENDING" || token.status === "REJECTED")
+      return redirect("/status-akun");
     return redirect("/login?error=disabled");
   }
 
@@ -69,7 +70,8 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith("/dashboard")) {
     if (!token || token.role !== "ALUMNI") return redirect("/login");
     if (token.status === "DISABLED") return redirect("/login?error=disabled");
-    if (token.status === "PENDING" || token.status === "REJECTED") return redirect("/status-akun");
+    if (token.status === "PENDING" || token.status === "REJECTED")
+      return redirect("/status-akun");
     if (token.status !== "APPROVED") return redirect("/login");
     return NextResponse.next();
   }
