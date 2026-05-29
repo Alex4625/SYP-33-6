@@ -28,8 +28,12 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
   const jurusan = param(params, "jurusan");
   const prodi = param(params, "prodi");
   const domisili = param(params, "domisili");
+  const domicileCity = param(params, "domicileCity");
+  const domicileProvince = param(params, "domicileProvince");
+  const originCity = param(params, "originCity");
+  const originProvince = param(params, "originProvince");
 
-  const filters = { q, jurusan, prodi, domisili };
+  const filters = { q, jurusan, prodi, domisili, domicileCity, domicileProvince, originCity, originProvince };
   const [alumni, total] = await Promise.all([
     getAlumniCards(filters, take, skip),
     countAlumniCards(filters),
@@ -41,7 +45,7 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
     <div className="container py-10">
       <div className="mb-6">
         <h1 className="text-3xl font-semibold">Direktori Alumni</h1>
-        <p className="mt-2 text-muted-foreground">Cari alumni berdasarkan nama, jurusan, program studi, atau domisili.</p>
+        <p className="mt-2 text-muted-foreground">Cari alumni berdasarkan nama, jurusan, program studi, domisili, atau asal daerah.</p>
       </div>
       <FilterBar searchParams={params} />
       {alumni.length > 0 ? (

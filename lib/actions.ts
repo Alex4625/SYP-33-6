@@ -156,25 +156,31 @@ export async function registerAlumni(_state: ActionState = emptyState, formData:
   const profileId = crypto.randomUUID();
   const passwordHash = await hash(parsed.data.password, 12);
 
-  await db.insert(users).values({
-    id: userId,
-    username: parsed.data.username,
-    passwordHash,
-    role: "ALUMNI",
-    status: "PENDING",
-  });
+  try {
+    await db.transaction(async (tx) => {
+      await tx.insert(users).values({
+        id: userId,
+        username: parsed.data.username,
+        passwordHash,
+        role: "ALUMNI",
+        status: "PENDING",
+      });
 
-  await db.insert(alumniProfiles).values({
-    id: profileId,
-    userId,
-    fullName: parsed.data.fullName,
-    highSchoolMajor: parsed.data.highSchoolMajor,
-    collegeMajor: parsed.data.collegeMajor,
-    birthPlace: parsed.data.birthPlace,
-    birthDate: parsed.data.birthDate,
-    email: optional(parsed.data.email ?? ""),
-    phone: optional(parsed.data.phone ?? ""),
-  });
+      await tx.insert(alumniProfiles).values({
+        id: profileId,
+        userId,
+        fullName: parsed.data.fullName,
+        highSchoolMajor: parsed.data.highSchoolMajor,
+        collegeMajor: parsed.data.collegeMajor,
+        birthPlace: parsed.data.birthPlace,
+        birthDate: parsed.data.birthDate,
+        email: optional(parsed.data.email ?? ""),
+        phone: optional(parsed.data.phone ?? ""),
+      });
+    });
+  } catch {
+    return { error: "Registrasi belum berhasil disimpan. Silakan coba lagi." };
+  }
 
   await signIn("credentials", {
     username: parsed.data.username,
@@ -396,7 +402,11 @@ export async function deleteOwnPost(postId: string) {
 export async function uploadGalleryPhoto(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const session = await auth();
-  if (!session || (session.user.role !== "ADMIN" && session.user.status !== "APPROVED")) {
+  const canUpload =
+    session?.user.role === "ADMIN" ||
+    (session?.user.role === "ALUMNI" && session.user.status === "APPROVED");
+
+  if (!session || !canUpload) {
     throw new Error("Anda tidak memiliki akses ke halaman ini");
   }
 
@@ -411,8 +421,9 @@ export async function uploadGalleryPhoto(_state: ActionState = emptyState, formD
 
   const db = await getCloudflareDb();
   const uploaded = await uploadImage(file, "gallery");
+  const photoId = crypto.randomUUID();
   await db.insert(galleryPhotos).values({
-    id: crypto.randomUUID(),
+    id: photoId,
     uploadedById: session.user.id,
     imageUrl: uploaded.imageUrl,
     imageKey: uploaded.imageKey,
@@ -420,7 +431,10 @@ export async function uploadGalleryPhoto(_state: ActionState = emptyState, formD
   });
 
   revalidatePath("/galeri");
-  if (session.user.role === "ADMIN") revalidatePath("/admin/galeri");
+  if (session.user.role === "ADMIN") {
+    await writeAdminLog(db, session.user.id, "UPLOAD_GALLERY", "GALLERY", photoId, "Mengunggah foto galeri");
+    revalidatePath("/admin/galeri");
+  }
   redirect(session.user.role === "ADMIN" ? "/admin/galeri" : "/dashboard");
 }
 

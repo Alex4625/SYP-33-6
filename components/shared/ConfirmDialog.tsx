@@ -1,29 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2Icon } from "lucide-react";
+import { AlertTriangleIcon, Trash2Icon, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+type ButtonVariant = "default" | "outline" | "secondary" | "ghost" | "destructive" | "link";
+type ButtonSize = "default" | "xs" | "sm" | "lg" | "icon" | "icon-xs" | "icon-sm" | "icon-lg";
 
 export function ConfirmDialog({
   title,
   description,
   action,
   actionLabel = "Hapus",
+  variant = "danger",
+  triggerIcon,
+  triggerVariant,
+  triggerSize = "sm",
   children,
 }: {
   title: string;
   description: string;
   action: (formData: FormData) => void | Promise<void>;
   actionLabel?: string;
+  variant?: "danger" | "warning";
+  triggerIcon?: LucideIcon;
+  triggerVariant?: ButtonVariant;
+  triggerSize?: ButtonSize;
   children?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const TriggerIcon = triggerIcon ?? (variant === "warning" ? AlertTriangleIcon : Trash2Icon);
+  const confirmVariant: ButtonVariant = variant === "danger" ? "destructive" : "default";
+  const buttonVariant = triggerVariant ?? (variant === "danger" ? "destructive" : "outline");
 
   return (
     <>
-      <Button type="button" variant="destructive" size="sm" onClick={() => setOpen(true)}>
-        <Trash2Icon className="size-4" aria-hidden="true" />
+      <Button type="button" variant={buttonVariant} size={triggerSize} onClick={() => setOpen(true)}>
+        <TriggerIcon className="size-4" aria-hidden="true" />
         {children ?? actionLabel}
       </Button>
       {open ? (
@@ -35,7 +49,7 @@ export function ConfirmDialog({
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Batal
               </Button>
-              <Button type="submit" variant="destructive">
+              <Button type="submit" variant={confirmVariant}>
                 {actionLabel}
               </Button>
             </form>

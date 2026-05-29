@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EyeIcon, PowerIcon, Trash2Icon } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -77,18 +78,27 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
                     <EyeIcon className="size-4" />
                     Detail
                   </Link>
-                  <form action={toggleAlumniStatus.bind(null, user.id)}>
-                    <Button type="submit" variant="outline" size="sm">
-                      <PowerIcon className="size-4" />
-                      {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
-                    </Button>
-                  </form>
-                  <form action={deleteAlumni.bind(null, user.id)}>
-                    <Button type="submit" variant="destructive" size="sm">
-                      <Trash2Icon className="size-4" />
-                      Hapus
-                    </Button>
-                  </form>
+                  <ConfirmDialog
+                    title={user.status === "DISABLED" ? "Aktifkan alumni?" : "Nonaktifkan alumni?"}
+                    description={
+                      user.status === "DISABLED"
+                        ? "Alumni akan bisa mengakses dashboard kembali setelah diaktifkan."
+                        : "Alumni tidak akan bisa mengakses dashboard sampai akun diaktifkan lagi."
+                    }
+                    action={toggleAlumniStatus.bind(null, user.id)}
+                    actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+                    variant="warning"
+                    triggerIcon={PowerIcon}
+                  >
+                    {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+                  </ConfirmDialog>
+                  <ConfirmDialog
+                    title="Hapus alumni?"
+                    description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
+                    action={deleteAlumni.bind(null, user.id)}
+                    actionLabel="Hapus"
+                    triggerIcon={Trash2Icon}
+                  />
                 </TableCell>
               </TableRow>
             ))}

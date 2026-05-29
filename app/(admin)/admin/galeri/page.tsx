@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { EyeIcon, EyeOffIcon, ImagePlusIcon, Trash2Icon } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { buttonVariants, Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminDeleteGalleryPhoto, toggleGalleryVisibility } from "@/lib/actions";
@@ -66,18 +67,27 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
                 {photo.uploadedBy.alumniProfile?.fullName ?? photo.uploadedBy.username} - {formatShortDate(photo.createdAt)}
               </p>
               <div className="flex flex-wrap gap-2">
-                <form action={toggleGalleryVisibility.bind(null, photo.id)}>
-                  <Button type="submit" size="sm" variant="outline">
-                    {photo.isHidden ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
-                    {photo.isHidden ? "Tampilkan" : "Sembunyikan"}
-                  </Button>
-                </form>
-                <form action={adminDeleteGalleryPhoto.bind(null, photo.id)}>
-                  <Button type="submit" size="sm" variant="destructive">
-                    <Trash2Icon className="size-4" />
-                    Hapus
-                  </Button>
-                </form>
+                <ConfirmDialog
+                  title={photo.isHidden ? "Tampilkan foto?" : "Sembunyikan foto?"}
+                  description={
+                    photo.isHidden
+                      ? "Foto akan kembali tampil di galeri publik."
+                      : "Foto akan disembunyikan dari galeri publik."
+                  }
+                  action={toggleGalleryVisibility.bind(null, photo.id)}
+                  actionLabel={photo.isHidden ? "Tampilkan" : "Sembunyikan"}
+                  variant="warning"
+                  triggerIcon={photo.isHidden ? EyeIcon : EyeOffIcon}
+                >
+                  {photo.isHidden ? "Tampilkan" : "Sembunyikan"}
+                </ConfirmDialog>
+                <ConfirmDialog
+                  title="Hapus foto galeri?"
+                  description="Foto akan dihapus permanen dari database dan storage."
+                  action={adminDeleteGalleryPhoto.bind(null, photo.id)}
+                  actionLabel="Hapus"
+                  triggerIcon={Trash2Icon}
+                />
               </div>
             </div>
           </div>

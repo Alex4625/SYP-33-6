@@ -17,7 +17,7 @@ export function FilterBar({
   };
 
   return (
-    <form action={action} className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-3 lg:grid-cols-6">
+    <form action={action} className="grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-2 lg:grid-cols-4">
       <div className="md:col-span-2">
         <Label htmlFor="q">Cari alumni</Label>
         <Input id="q" name="q" defaultValue={value("q")} placeholder="Nama alumni" />
@@ -35,8 +35,20 @@ export function FilterBar({
         <Input id="prodi" name="prodi" defaultValue={value("prodi")} placeholder="Teknik, hukum..." />
       </div>
       <div>
-        <Label htmlFor="domisili">Domisili</Label>
-        <Input id="domisili" name="domisili" defaultValue={value("domisili")} placeholder="Kota/provinsi" />
+        <Label htmlFor="domicileCity">Kota domisili</Label>
+        <Input id="domicileCity" name="domicileCity" defaultValue={value("domicileCity")} placeholder="Makassar" />
+      </div>
+      <div>
+        <Label htmlFor="domicileProvince">Provinsi domisili</Label>
+        <Input id="domicileProvince" name="domicileProvince" defaultValue={value("domicileProvince")} placeholder="Sulawesi Selatan" />
+      </div>
+      <div>
+        <Label htmlFor="originCity">Kota asal</Label>
+        <Input id="originCity" name="originCity" defaultValue={value("originCity")} placeholder="Kota asal" />
+      </div>
+      <div>
+        <Label htmlFor="originProvince">Provinsi asal</Label>
+        <Input id="originProvince" name="originProvince" defaultValue={value("originProvince")} placeholder="Provinsi asal" />
       </div>
       <div className="flex items-end gap-2">
         <Button type="submit" className="w-full">

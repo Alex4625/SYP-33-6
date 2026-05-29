@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { PowerIcon, Trash2Icon } from "lucide-react";
 
 import { AdminAlumniForm } from "@/app/(admin)/admin/alumni/[id]/AdminAlumniForm";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteAlumni, toggleAlumniStatus } from "@/lib/actions";
 import { getUserWithProfileById } from "@/lib/data";
@@ -37,18 +37,29 @@ export default async function AdminAlumniDetailPage({ params }: { params: Promis
           </div>
         </div>
         <div className="flex gap-2">
-          <form action={toggleAlumniStatus.bind(null, user.id)}>
-            <Button type="submit" variant="outline">
-              <PowerIcon className="size-4" />
-              {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
-            </Button>
-          </form>
-          <form action={deleteAlumni.bind(null, user.id)}>
-            <Button type="submit" variant="destructive">
-              <Trash2Icon className="size-4" />
-              Hapus
-            </Button>
-          </form>
+          <ConfirmDialog
+            title={user.status === "DISABLED" ? "Aktifkan alumni?" : "Nonaktifkan alumni?"}
+            description={
+              user.status === "DISABLED"
+                ? "Alumni akan bisa mengakses dashboard kembali setelah diaktifkan."
+                : "Alumni tidak akan bisa mengakses dashboard sampai akun diaktifkan lagi."
+            }
+            action={toggleAlumniStatus.bind(null, user.id)}
+            actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+            variant="warning"
+            triggerIcon={PowerIcon}
+            triggerSize="default"
+          >
+            {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+          </ConfirmDialog>
+          <ConfirmDialog
+            title="Hapus alumni?"
+            description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
+            action={deleteAlumni.bind(null, user.id)}
+            actionLabel="Hapus"
+            triggerIcon={Trash2Icon}
+            triggerSize="default"
+          />
         </div>
       </div>
       <Card className="mb-6 rounded-lg">

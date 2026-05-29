@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { EyeIcon, EyeOffIcon, Trash2Icon } from "lucide-react";
 
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -64,18 +65,27 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
                 <TableCell>{post.isHidden ? <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-700">Disembunyikan</span> : <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs text-emerald-700">Publik</span>}</TableCell>
                 <TableCell>{formatShortDate(post.createdAt)}</TableCell>
                 <TableCell className="flex flex-wrap gap-2">
-                  <form action={togglePostVisibility.bind(null, post.id)}>
-                    <Button type="submit" size="sm" variant="outline">
-                      {post.isHidden ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
-                      {post.isHidden ? "Tampilkan" : "Sembunyikan"}
-                    </Button>
-                  </form>
-                  <form action={adminDeletePost.bind(null, post.id)}>
-                    <Button type="submit" size="sm" variant="destructive">
-                      <Trash2Icon className="size-4" />
-                      Hapus
-                    </Button>
-                  </form>
+                  <ConfirmDialog
+                    title={post.isHidden ? "Tampilkan postingan?" : "Sembunyikan postingan?"}
+                    description={
+                      post.isHidden
+                        ? "Postingan akan kembali tampil di feed publik."
+                        : "Postingan akan disembunyikan dari feed publik."
+                    }
+                    action={togglePostVisibility.bind(null, post.id)}
+                    actionLabel={post.isHidden ? "Tampilkan" : "Sembunyikan"}
+                    variant="warning"
+                    triggerIcon={post.isHidden ? EyeIcon : EyeOffIcon}
+                  >
+                    {post.isHidden ? "Tampilkan" : "Sembunyikan"}
+                  </ConfirmDialog>
+                  <ConfirmDialog
+                    title="Hapus postingan?"
+                    description="Postingan dan semua fotonya akan dihapus permanen."
+                    action={adminDeletePost.bind(null, post.id)}
+                    actionLabel="Hapus"
+                    triggerIcon={Trash2Icon}
+                  />
                 </TableCell>
               </TableRow>
             ))}
