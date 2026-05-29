@@ -11,6 +11,7 @@ import {
   type AccountStatus,
   type HighSchoolMajor,
 } from "@/db/schema";
+import { proxiedMediaUrl } from "@/lib/r2";
 
 type AlumniFilters = {
   q?: string;
@@ -55,7 +56,7 @@ function profileCard(row: {
     collegeMajor: row.collegeMajor,
     domicileCity: row.domicileCity,
     domicileProvince: row.domicileProvince,
-    profilePhotoUrl: row.profilePhotoUrl,
+    profilePhotoUrl: proxiedMediaUrl(row.profilePhotoUrl),
     user: { username: row.username },
   };
 }
@@ -65,7 +66,7 @@ function groupImages(rows: { id: string; postId: string; imageUrl: string; order
 
   for (const image of rows) {
     const current = map.get(image.postId) ?? [];
-    current.push({ id: image.id, imageUrl: image.imageUrl, orderIndex: image.orderIndex });
+    current.push({ id: image.id, imageUrl: proxiedMediaUrl(image.imageUrl) ?? image.imageUrl, orderIndex: image.orderIndex });
     map.set(image.postId, current);
   }
 
@@ -92,7 +93,7 @@ function postCards(
       alumniProfile: post.fullName
         ? {
             fullName: post.fullName,
-            profilePhotoUrl: post.profilePhotoUrl,
+            profilePhotoUrl: proxiedMediaUrl(post.profilePhotoUrl),
           }
         : null,
     },
@@ -276,6 +277,7 @@ export async function getPublicAlumniProfile(username: string) {
 
   return {
     ...row,
+    profilePhotoUrl: proxiedMediaUrl(row.profilePhotoUrl),
     user: {
       id: row.id,
       username: row.username,
@@ -305,7 +307,7 @@ export async function getGalleryPhotos({ limit, offset = 0, publicOnly = false }
 
   return rows.map((photo) => ({
     id: photo.id,
-    imageUrl: photo.imageUrl,
+    imageUrl: proxiedMediaUrl(photo.imageUrl) ?? photo.imageUrl,
     caption: photo.caption,
     createdAt: photo.createdAt,
     uploadedBy: {
@@ -328,7 +330,7 @@ export async function countGalleryPhotos(publicOnly = false) {
 export async function getProfileByUserId(userId: string) {
   const db = await getCloudflareDb();
   const [profile] = await db.select().from(alumniProfiles).where(eq(alumniProfiles.userId, userId)).limit(1);
-  return profile ?? null;
+  return profile ? { ...profile, profilePhotoUrl: proxiedMediaUrl(profile.profilePhotoUrl) } : null;
 }
 
 export async function getUserWithProfileById(id: string) {
@@ -341,7 +343,12 @@ export async function getUserWithProfileById(id: string) {
     .limit(1);
 
   if (!row) return null;
-  return { ...row.user, alumniProfile: row.alumniProfile };
+  return {
+    ...row.user,
+    alumniProfile: row.alumniProfile
+      ? { ...row.alumniProfile, profilePhotoUrl: proxiedMediaUrl(row.alumniProfile.profilePhotoUrl) }
+      : null,
+  };
 }
 
 export async function getPendingUsers() {
@@ -353,7 +360,12 @@ export async function getPendingUsers() {
     .where(and(eq(users.role, "ALUMNI"), eq(users.status, "PENDING")))
     .orderBy(asc(users.createdAt));
 
-  return rows.map((row) => ({ ...row.user, alumniProfile: row.alumniProfile }));
+  return rows.map((row) => ({
+    ...row.user,
+    alumniProfile: row.alumniProfile
+      ? { ...row.alumniProfile, profilePhotoUrl: proxiedMediaUrl(row.alumniProfile.profilePhotoUrl) }
+      : null,
+  }));
 }
 
 function adminUsersWhere({ q, status }: Pick<AdminUserFilters, "q" | "status">) {
@@ -391,7 +403,12 @@ export async function getAdminUsers(filters: AdminUserFilters) {
   ]);
 
   return {
-    users: rows.map((row) => ({ ...row.user, alumniProfile: row.alumniProfile })),
+    users: rows.map((row) => ({
+      ...row.user,
+      alumniProfile: row.alumniProfile
+        ? { ...row.alumniProfile, profilePhotoUrl: proxiedMediaUrl(row.alumniProfile.profilePhotoUrl) }
+        : null,
+    })),
     total: totalRows[0]?.value ?? 0,
   };
 }
@@ -473,6 +490,7 @@ export async function getAdminGallery({ q, status }: { q?: string; status?: Stat
 
   return rows.map((photo) => ({
     ...photo,
+    imageUrl: proxiedMediaUrl(photo.imageUrl) ?? photo.imageUrl,
     uploadedBy: {
       username: photo.username,
       alumniProfile: photo.fullName ? { fullName: photo.fullName } : null,
