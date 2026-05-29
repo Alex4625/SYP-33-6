@@ -8,7 +8,7 @@ export default async function AlumniLayout({ children }: { children: React.React
 
   async function signOutAction() {
     "use server";
-    await signOut({ redirectTo: "/login" });
+    await signOut({ redirectTo: "/" });
   }
 
   if (!session || session.user.role !== "ALUMNI" || session.user.status !== "APPROVED") {

@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   async function signOutAction() {
     "use server";
-    await signOut({ redirectTo: "/admin/login" });
+    await signOut({ redirectTo: "/" });
   }
 
   if (!session || session.user.role !== "ADMIN") {

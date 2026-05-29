@@ -7,11 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const signOutRedirectTo = session?.user.role === "ADMIN" ? "/admin/login" : "/login";
 
   async function signOutAction() {
     "use server";
-    await signOut({ redirectTo: signOutRedirectTo });
+    await signOut({ redirectTo: "/" });
   }
 
   const viewer = session?.user

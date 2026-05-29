@@ -18,7 +18,7 @@ export default async function AccountStatusPage() {
 
   async function signOutAction() {
     "use server";
-    await signOut({ redirectTo: "/login" });
+    await signOut({ redirectTo: "/" });
   }
 
   const rejected = user?.status === "REJECTED";
