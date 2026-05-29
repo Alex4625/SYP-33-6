@@ -15,6 +15,7 @@ function getClientIp(request: NextRequest) {
 
 function isRateLimited(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  if (request.method !== "POST") return false;
   if (!["/login", "/daftar"].includes(pathname)) return false;
 
   const key = `${getClientIp(request)}:${pathname}`;

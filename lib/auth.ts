@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { eq } from "drizzle-orm";
@@ -6,6 +6,10 @@ import { eq } from "drizzle-orm";
 import { getCloudflareDb } from "@/db";
 import { users } from "@/db/schema";
 import { loginSchema } from "@/lib/validations";
+
+class DisabledAccountError extends CredentialsSignin {
+  code = "disabled";
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
@@ -32,7 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!parsed.success) {
-          throw new Error("Username atau password salah");
+          return null;
         }
 
         const db = await getCloudflareDb();
@@ -49,17 +53,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1);
 
         if (!user) {
-          throw new Error("Username atau password salah");
+          return null;
         }
 
         const passwordMatches = await compare(parsed.data.password, user.passwordHash);
 
         if (!passwordMatches) {
-          throw new Error("Username atau password salah");
+          return null;
         }
 
         if (user.status === "DISABLED") {
-          throw new Error("DISABLED");
+          throw new DisabledAccountError();
         }
 
         return {

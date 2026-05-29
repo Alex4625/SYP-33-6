@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { getSession, signIn, signOut } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Loader2Icon, LogInIcon } from "lucide-react";
 
@@ -13,9 +13,16 @@ import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/validations";
 
 export function LoginForm({ admin = false }: { admin?: boolean }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState(searchParams.get("error") === "disabled" ? "Akun Anda telah dinonaktifkan" : "");
+  const initialError =
+    searchParams.get("error") === "disabled"
+      ? "Akun Anda telah dinonaktifkan"
+      : searchParams.get("error") === "not-admin"
+        ? "Akun ini bukan akun admin."
+        : searchParams.get("error") === "session"
+          ? "Sesi login tidak dapat dibuat. Silakan coba lagi."
+          : "";
+  const [error, setError] = useState(initialError);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -41,38 +48,22 @@ export function LoginForm({ admin = false }: { admin?: boolean }) {
       password: parsed.data.password,
       remember: parsed.data.remember,
       redirect: false,
+      redirectTo: admin ? "/masuk/lanjut?target=admin" : "/masuk/lanjut",
     });
 
-    if (!result?.ok) {
-      setError(result?.error === "DISABLED" ? "Akun Anda telah dinonaktifkan" : "Username atau password salah");
+    if (!result) {
+      setError("Login tidak berhasil. Silakan coba lagi.");
       setLoading(false);
       return;
     }
 
-    // Tunggu sebentar untuk memastikan session ter-update
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const session = await getSession();
-    if (!session?.user) {
-      setError("Sesi login tidak dapat dibuat. Silakan coba lagi.");
+    if (result.error) {
+      setError(result.code === "disabled" ? "Akun Anda telah dinonaktifkan" : "Username atau password salah");
       setLoading(false);
       return;
     }
 
-    if (admin) {
-      if (session.user.role !== "ADMIN") {
-        await signOut({ redirect: false });
-        setError("Akun ini bukan akun admin.");
-        setLoading(false);
-        return;
-      }
-      router.push("/admin");
-      return;
-    }
-
-    if (session.user.status === "APPROVED") router.push("/dashboard");
-    else if (session.user.status === "PENDING" || session.user.status === "REJECTED") router.push("/status-akun");
-    else router.push("/login?error=disabled");
+    window.location.assign(result.url ?? (admin ? "/admin" : "/masuk/lanjut"));
   }
 
   return (
