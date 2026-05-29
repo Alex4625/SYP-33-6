@@ -49,6 +49,9 @@ export function LoginForm({ admin = false }: { admin?: boolean }) {
       return;
     }
 
+    // Tunggu sebentar untuk memastikan session ter-update
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     const session = await getSession();
     if (!session?.user) {
       setError("Sesi login tidak dapat dibuat. Silakan coba lagi.");
