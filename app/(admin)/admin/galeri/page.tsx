@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { EyeIcon, EyeOffIcon, ImagePlusIcon, Trash2Icon } from "lucide-react";
+import { ImagePlusIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
                   action={toggleGalleryVisibility.bind(null, photo.id)}
                   actionLabel={photo.isHidden ? "Tampilkan" : "Sembunyikan"}
                   variant="warning"
-                  triggerIcon={photo.isHidden ? EyeIcon : EyeOffIcon}
+                  triggerIcon={photo.isHidden ? "eye" : "eye-off"}
                 >
                   {photo.isHidden ? "Tampilkan" : "Sembunyikan"}
                 </ConfirmDialog>
@@ -86,7 +86,7 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
                   description="Foto akan dihapus permanen dari database dan storage."
                   action={adminDeleteGalleryPhoto.bind(null, photo.id)}
                   actionLabel="Hapus"
-                  triggerIcon={Trash2Icon}
+                  triggerIcon="trash"
                 />
               </div>
             </div>

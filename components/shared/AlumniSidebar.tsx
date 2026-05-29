@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CameraIcon, Edit3Icon, FilePlus2Icon, HomeIcon, LogOutIcon, UsersRoundIcon } from "lucide-react";
+import { CameraIcon, Edit3Icon, FilePlus2Icon, Globe2Icon, HomeIcon, LogOutIcon, UsersRoundIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/dashboard", label: "Beranda", icon: HomeIcon },
+  { href: "/", label: "Lihat Situs", icon: Globe2Icon },
   { href: "/dashboard/profil", label: "Profil", icon: Edit3Icon },
   { href: "/dashboard/postingan", label: "Postingan Saya", icon: FilePlus2Icon },
   { href: "/dashboard/galeri/upload", label: "Upload Galeri", icon: CameraIcon },
-  { href: "/alumni", label: "Direktori Alumni", icon: UsersRoundIcon },
+  { href: "/dashboard/direktori", label: "Direktori Alumni", icon: UsersRoundIcon },
 ];
 
 export function AlumniSidebar({ signOutAction }: { signOutAction: () => Promise<void> }) {
@@ -27,7 +28,9 @@ export function AlumniSidebar({ signOutAction }: { signOutAction: () => Promise<
       <nav className="flex-1 space-y-1 p-3">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = pathname === item.href;
+          const active =
+            pathname === item.href ||
+            (item.href !== "/" && item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
           return (
             <Link
               key={item.href}

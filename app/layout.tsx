@@ -34,6 +34,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "globalThis.__name ??= function(fn){return fn;};",
+          }}
+        />
         <ThemeProvider>
           {children}
           <Toaster />

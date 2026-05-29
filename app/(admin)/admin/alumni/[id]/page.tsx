@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PowerIcon, Trash2Icon } from "lucide-react";
 
 import { AdminAlumniForm } from "@/app/(admin)/admin/alumni/[id]/AdminAlumniForm";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -47,7 +46,7 @@ export default async function AdminAlumniDetailPage({ params }: { params: Promis
             action={toggleAlumniStatus.bind(null, user.id)}
             actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
             variant="warning"
-            triggerIcon={PowerIcon}
+            triggerIcon="power"
             triggerSize="default"
           >
             {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
@@ -57,7 +56,7 @@ export default async function AdminAlumniDetailPage({ params }: { params: Promis
             description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
             action={deleteAlumni.bind(null, user.id)}
             actionLabel="Hapus"
-            triggerIcon={Trash2Icon}
+            triggerIcon="trash"
             triggerSize="default"
           />
         </div>

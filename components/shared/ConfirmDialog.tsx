@@ -1,12 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangleIcon, Trash2Icon, type LucideIcon } from "lucide-react";
+import { AlertTriangleIcon, EyeIcon, EyeOffIcon, PowerIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 type ButtonVariant = "default" | "outline" | "secondary" | "ghost" | "destructive" | "link";
 type ButtonSize = "default" | "xs" | "sm" | "lg" | "icon" | "icon-xs" | "icon-sm" | "icon-lg";
+type TriggerIconName = "alert" | "eye" | "eye-off" | "power" | "trash";
+
+const triggerIcons = {
+  alert: AlertTriangleIcon,
+  eye: EyeIcon,
+  "eye-off": EyeOffIcon,
+  power: PowerIcon,
+  trash: Trash2Icon,
+} satisfies Record<TriggerIconName, typeof AlertTriangleIcon>;
 
 export function ConfirmDialog({
   title,
@@ -24,13 +33,13 @@ export function ConfirmDialog({
   action: (formData: FormData) => void | Promise<void>;
   actionLabel?: string;
   variant?: "danger" | "warning";
-  triggerIcon?: LucideIcon;
+  triggerIcon?: TriggerIconName;
   triggerVariant?: ButtonVariant;
   triggerSize?: ButtonSize;
   children?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const TriggerIcon = triggerIcon ?? (variant === "warning" ? AlertTriangleIcon : Trash2Icon);
+  const TriggerIcon = triggerIcons[triggerIcon ?? (variant === "warning" ? "alert" : "trash")];
   const confirmVariant: ButtonVariant = variant === "danger" ? "destructive" : "default";
   const buttonVariant = triggerVariant ?? (variant === "danger" ? "destructive" : "outline");
 

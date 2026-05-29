@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { EyeIcon, EyeOffIcon, Trash2Icon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,7 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
                     action={togglePostVisibility.bind(null, post.id)}
                     actionLabel={post.isHidden ? "Tampilkan" : "Sembunyikan"}
                     variant="warning"
-                    triggerIcon={post.isHidden ? EyeIcon : EyeOffIcon}
+                    triggerIcon={post.isHidden ? "eye" : "eye-off"}
                   >
                     {post.isHidden ? "Tampilkan" : "Sembunyikan"}
                   </ConfirmDialog>
@@ -84,7 +83,7 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
                     description="Postingan dan semua fotonya akan dihapus permanen."
                     action={adminDeletePost.bind(null, post.id)}
                     actionLabel="Hapus"
-                    triggerIcon={Trash2Icon}
+                    triggerIcon="trash"
                   />
                 </TableCell>
               </TableRow>

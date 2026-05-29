@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EyeIcon, PowerIcon, Trash2Icon } from "lucide-react";
+import { EyeIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
@@ -88,7 +88,7 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
                     action={toggleAlumniStatus.bind(null, user.id)}
                     actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
                     variant="warning"
-                    triggerIcon={PowerIcon}
+                    triggerIcon="power"
                   >
                     {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
                   </ConfirmDialog>
@@ -97,7 +97,7 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
                     description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
                     action={deleteAlumni.bind(null, user.id)}
                     actionLabel="Hapus"
-                    triggerIcon={Trash2Icon}
+                    triggerIcon="trash"
                   />
                 </TableCell>
               </TableRow>

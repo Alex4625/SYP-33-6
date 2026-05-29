@@ -27,7 +27,7 @@ export default async function AlumniDashboardPage() {
     { href: "/dashboard/profil", label: "Edit Profil", icon: Edit3Icon },
     { href: "/dashboard/postingan/baru", label: "Buat Postingan", icon: FilePlus2Icon },
     { href: "/dashboard/galeri/upload", label: "Upload Galeri", icon: ImagePlusIcon },
-    { href: "/alumni", label: "Direktori Alumni", icon: UsersRoundIcon },
+    { href: "/dashboard/direktori", label: "Direktori Alumni", icon: UsersRoundIcon },
   ];
 
   return (
