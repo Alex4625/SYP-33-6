@@ -21,6 +21,11 @@ function monthKey(date: Date) {
   return new Intl.DateTimeFormat("id-ID", { month: "short", year: "2-digit" }).format(date);
 }
 
+function monthSqlKey(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${date.getFullYear()}-${month}`;
+}
+
 export default async function AdminDashboardPage() {
   const {
     total,
@@ -36,14 +41,14 @@ export default async function AdminDashboardPage() {
     domicileGroup,
     originGroup,
     recentUsers,
-    monthlyUsers,
+    monthlyGroup,
     now,
   } = await getAdminDashboardData();
+  const monthlyMap = new Map(monthlyGroup.map((item) => [item.key, item.value]));
 
   const months = Array.from({ length: 12 }, (_, index) => {
     const date = new Date(now.getFullYear(), now.getMonth() - (11 - index), 1);
-    const name = monthKey(date);
-    return { name, total: monthlyUsers.filter((user) => monthKey(user.createdAt) === name).length };
+    return { name: monthKey(date), total: monthlyMap.get(monthSqlKey(date)) ?? 0 };
   });
 
   return (

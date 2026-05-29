@@ -518,31 +518,37 @@ export async function getAdminDashboardData() {
   const db = await getCloudflareDb();
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const startSeconds = Math.floor(start.getTime() / 1000);
 
   const [
-    total,
-    pending,
-    approved,
-    disabled,
-    postPublic,
-    postHidden,
-    galleryPublic,
-    galleryHidden,
+    totals,
     majorGroup,
     collegeGroup,
     domicileGroup,
     originGroup,
     recentUsers,
-    monthlyUsers,
+    monthlyGroup,
   ] = await Promise.all([
-    db.select({ value: count() }).from(users).where(eq(users.role, "ALUMNI")),
-    db.select({ value: count() }).from(users).where(and(eq(users.role, "ALUMNI"), eq(users.status, "PENDING"))),
-    db.select({ value: count() }).from(users).where(and(eq(users.role, "ALUMNI"), eq(users.status, "APPROVED"))),
-    db.select({ value: count() }).from(users).where(and(eq(users.role, "ALUMNI"), eq(users.status, "DISABLED"))),
-    db.select({ value: count() }).from(posts).where(eq(posts.isHidden, false)),
-    db.select({ value: count() }).from(posts).where(eq(posts.isHidden, true)),
-    db.select({ value: count() }).from(galleryPhotos).where(eq(galleryPhotos.isHidden, false)),
-    db.select({ value: count() }).from(galleryPhotos).where(eq(galleryPhotos.isHidden, true)),
+    db.all<{
+      totalAlumni: number;
+      pending: number;
+      approved: number;
+      disabled: number;
+      postPublic: number;
+      postHidden: number;
+      galleryPublic: number;
+      galleryHidden: number;
+    }>(sql`
+      select
+        (select count(*) from users where role = 'ALUMNI') as totalAlumni,
+        (select count(*) from users where role = 'ALUMNI' and status = 'PENDING') as pending,
+        (select count(*) from users where role = 'ALUMNI' and status = 'APPROVED') as approved,
+        (select count(*) from users where role = 'ALUMNI' and status = 'DISABLED') as disabled,
+        (select count(*) from posts where is_hidden = 0) as postPublic,
+        (select count(*) from posts where is_hidden = 1) as postHidden,
+        (select count(*) from gallery_photos where is_hidden = 0) as galleryPublic,
+        (select count(*) from gallery_photos where is_hidden = 1) as galleryHidden
+    `),
     db
       .select({ name: alumniProfiles.highSchoolMajor, value: count() })
       .from(alumniProfiles)
@@ -581,26 +587,30 @@ export async function getAdminDashboardData() {
       .orderBy(desc(users.createdAt))
       .limit(5),
     db
-      .select({ createdAt: users.createdAt })
-      .from(users)
-      .where(and(eq(users.role, "ALUMNI"), gte(users.createdAt, start))),
+      .all<{ key: string; value: number }>(sql`
+        select strftime('%Y-%m', datetime(created_at, 'unixepoch')) as key, count(*) as value
+        from users
+        where role = 'ALUMNI' and created_at >= ${startSeconds}
+        group by key
+      `),
   ]);
+  const counts = totals[0];
 
   return {
-    total: total[0]?.value ?? 0,
-    pending: pending[0]?.value ?? 0,
-    approved: approved[0]?.value ?? 0,
-    disabled: disabled[0]?.value ?? 0,
-    postPublic: postPublic[0]?.value ?? 0,
-    postHidden: postHidden[0]?.value ?? 0,
-    galleryPublic: galleryPublic[0]?.value ?? 0,
-    galleryHidden: galleryHidden[0]?.value ?? 0,
+    total: counts?.totalAlumni ?? 0,
+    pending: counts?.pending ?? 0,
+    approved: counts?.approved ?? 0,
+    disabled: counts?.disabled ?? 0,
+    postPublic: counts?.postPublic ?? 0,
+    postHidden: counts?.postHidden ?? 0,
+    galleryPublic: counts?.galleryPublic ?? 0,
+    galleryHidden: counts?.galleryHidden ?? 0,
     majorGroup,
     collegeGroup,
     domicileGroup,
     originGroup,
     recentUsers: recentUsers.map((row) => ({ ...row.user, alumniProfile: row.alumniProfile })),
-    monthlyUsers,
+    monthlyGroup,
     now,
   };
 }
