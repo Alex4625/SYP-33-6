@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { UserPlusIcon } from "lucide-react";
 
-import { registerAlumni } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,18 +25,23 @@ function FieldError({ errors }: { errors?: string[] }) {
 }
 
 export function RegisterForm() {
-  const [state, formAction, pending] = useActionState(registerAlumni, {});
-  const [clientError, setClientError] = useState("");
-  const [clientFieldErrors, setClientFieldErrors] = useState<ActionFieldErrors>();
-  const fieldErrors = clientFieldErrors ?? state.fieldErrors;
-  const formError = clientError || state.error;
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<ActionFieldErrors>();
+  const [pending, setPending] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setError("");
+    setFieldErrors(undefined);
+
     const formData = new FormData(event.currentTarget);
+    const username = formValue(formData, "username");
+    const password = formValue(formData, "password");
     const parsed = registerSchema.safeParse({
       fullName: formValue(formData, "fullName"),
-      username: formValue(formData, "username"),
-      password: formValue(formData, "password"),
+      username,
+      password,
       confirmPassword: formValue(formData, "confirmPassword"),
       highSchoolMajor: formValue(formData, "highSchoolMajor"),
       collegeMajor: formValue(formData, "collegeMajor"),
@@ -47,20 +52,54 @@ export function RegisterForm() {
     });
 
     if (!parsed.success) {
-      event.preventDefault();
-      setClientError("Periksa kembali format data yang ditandai.");
-      setClientFieldErrors(parsed.error.flatten().fieldErrors);
+      setError("Periksa kembali format data yang ditandai.");
+      setFieldErrors(parsed.error.flatten().fieldErrors);
+      setPending(false);
       return;
     }
 
-    setClientError("");
-    setClientFieldErrors(undefined);
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as {
+        error?: string;
+        fieldErrors?: ActionFieldErrors;
+        username?: string;
+      };
+
+      if (!response.ok) {
+        setError(result.error ?? "Registrasi belum berhasil. Silakan periksa kembali data Anda.");
+        setFieldErrors(result.fieldErrors);
+        setPending(false);
+        return;
+      }
+
+      const signInResult = await signIn("credentials", {
+        username: result.username ?? username,
+        password,
+        redirect: false,
+        redirectTo: "/status-akun?status=pending",
+      });
+
+      if (!signInResult || signInResult.error) {
+        setError("Registrasi berhasil, tetapi sesi login belum bisa dibuat. Silakan masuk manual.");
+        setPending(false);
+        return;
+      }
+
+      window.location.assign(signInResult.url ?? "/status-akun?status=pending");
+    } catch {
+      setError("Registrasi belum berhasil. Silakan coba lagi.");
+      setPending(false);
+    }
   }
 
   function clearClientErrors() {
-    if (clientError || clientFieldErrors) {
-      setClientError("");
-      setClientFieldErrors(undefined);
+    if (error || fieldErrors) {
+      setError("");
+      setFieldErrors(undefined);
     }
   }
 
@@ -70,17 +109,17 @@ export function RegisterForm() {
         <CardTitle>Daftar Alumni</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={formAction} onSubmit={handleSubmit} onInput={clearClientErrors} className="grid gap-4 md:grid-cols-2">
-          {formError ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{formError}</p> : null}
+        <form onSubmit={handleSubmit} onInput={clearClientErrors} className="grid gap-4 md:grid-cols-2">
+          {error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="fullName">Nama lengkap</Label>
-            <Input id="fullName" name="fullName" placeholder="Contoh: Ahmad Fadli" defaultValue={state.values?.fullName ?? ""} required />
+            <Input id="fullName" name="fullName" placeholder="Contoh: Ahmad Fadli" required />
             <FieldHint>Isi nama asli sesuai identitas, minimal 2 karakter.</FieldHint>
             <FieldError errors={fieldErrors?.fullName} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input id="username" name="username" placeholder="contoh: ahmad_fadli" defaultValue={state.values?.username ?? ""} autoComplete="username" required />
+            <Input id="username" name="username" placeholder="contoh: ahmad_fadli" autoComplete="username" required />
             <FieldHint>3-50 karakter, hanya huruf, angka, dan underscore. Akan dipakai untuk login.</FieldHint>
             <FieldError errors={fieldErrors?.username} />
           </div>
@@ -89,7 +128,7 @@ export function RegisterForm() {
             <select
               id="highSchoolMajor"
               name="highSchoolMajor"
-              defaultValue={state.values?.highSchoolMajor ?? ""}
+              defaultValue=""
               required
               className="h-8 w-full rounded-lg border border-input bg-background px-2 text-sm"
             >
@@ -114,31 +153,31 @@ export function RegisterForm() {
           </div>
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="collegeMajor">Program studi kuliah</Label>
-            <Input id="collegeMajor" name="collegeMajor" placeholder="Contoh: Teknik Informatika" defaultValue={state.values?.collegeMajor ?? ""} required />
+            <Input id="collegeMajor" name="collegeMajor" placeholder="Contoh: Teknik Informatika" required />
             <FieldHint>Isi nama program studi atau jurusan kuliah saat ini/terakhir.</FieldHint>
             <FieldError errors={fieldErrors?.collegeMajor} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="birthPlace">Tempat lahir</Label>
-            <Input id="birthPlace" name="birthPlace" placeholder="Contoh: Makassar" defaultValue={state.values?.birthPlace ?? ""} required />
+            <Input id="birthPlace" name="birthPlace" placeholder="Contoh: Makassar" required />
             <FieldHint>Isi kota/kabupaten tempat lahir.</FieldHint>
             <FieldError errors={fieldErrors?.birthPlace} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="birthDate">Tanggal lahir</Label>
-            <Input id="birthDate" name="birthDate" type="date" defaultValue={state.values?.birthDate ?? ""} required />
+            <Input id="birthDate" name="birthDate" type="date" required />
             <FieldHint>Gunakan format tanggal dari kalender, tidak boleh tanggal masa depan.</FieldHint>
             <FieldError errors={fieldErrors?.birthDate} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" placeholder="nama@email.com" defaultValue={state.values?.email ?? ""} autoComplete="email" />
+            <Input id="email" name="email" type="email" placeholder="nama@email.com" autoComplete="email" />
             <FieldHint>Opsional, dipakai untuk reset password jika diisi.</FieldHint>
             <FieldError errors={fieldErrors?.email} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Nomor HP</Label>
-            <Input id="phone" name="phone" placeholder="08xxxxxxxxxx" defaultValue={state.values?.phone ?? ""} inputMode="tel" autoComplete="tel" />
+            <Input id="phone" name="phone" placeholder="08xxxxxxxxxx" inputMode="tel" autoComplete="tel" />
             <FieldHint>Opsional, gunakan format 08..., 62..., atau +62..., 9-16 digit angka.</FieldHint>
             <FieldError errors={fieldErrors?.phone} />
           </div>

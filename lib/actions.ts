@@ -10,13 +10,13 @@ import { adminLogs, alumniProfiles, galleryPhotos, postImages, posts, users, typ
 import { auth, signIn } from "@/lib/auth";
 import { deleteFromR2, generateR2Key, uploadToR2 } from "@/lib/r2";
 import { sendPasswordResetEmail } from "@/lib/resend";
+import { createAlumniRegistration } from "@/lib/registration";
 import {
   MAX_POST_PHOTO_SIZE,
   MAX_PROFILE_PHOTO_SIZE,
   createPostSchema,
   editProfileSchema,
   forgotPasswordSchema,
-  registerSchema,
   resetPasswordSchema,
   uploadGallerySchema,
   validateImageFile,
@@ -117,19 +117,6 @@ function profileDataFromForm(formData: FormData) {
   };
 }
 
-function registerValuesFromForm(formData: FormData) {
-  return {
-    fullName: stringValue(formData, "fullName"),
-    username: stringValue(formData, "username"),
-    highSchoolMajor: stringValue(formData, "highSchoolMajor"),
-    collegeMajor: stringValue(formData, "collegeMajor"),
-    birthPlace: stringValue(formData, "birthPlace"),
-    birthDate: stringValue(formData, "birthDate"),
-    email: stringValue(formData, "email"),
-    phone: stringValue(formData, "phone"),
-  };
-}
-
 function socialMediaJson(value: string) {
   if (!value.trim()) return null;
 
@@ -142,61 +129,19 @@ function socialMediaJson(value: string) {
 
 export async function registerAlumni(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
-  const values = registerValuesFromForm(formData);
-  const parsed = registerSchema.safeParse({
-    ...values,
-    password: stringValue(formData, "password"),
-    confirmPassword: stringValue(formData, "confirmPassword"),
-  });
+  const result = await createAlumniRegistration(formData);
 
-  if (!parsed.success) {
-    return { error: "Periksa kembali data registrasi.", fieldErrors: parsed.error.flatten().fieldErrors, values };
-  }
-
-  const db = await getCloudflareDb();
-  const [existingUser] = await db.select({ id: users.id }).from(users).where(eq(users.username, parsed.data.username)).limit(1);
-
-  if (existingUser) {
+  if (!result.ok) {
     return {
-      error: "Username sudah digunakan, silakan pilih yang lain",
-      fieldErrors: { username: ["Username sudah digunakan"] },
-      values,
+      error: result.error,
+      fieldErrors: result.fieldErrors,
+      values: result.values,
     };
   }
 
-  const userId = crypto.randomUUID();
-  const profileId = crypto.randomUUID();
-  const passwordHash = await hash(parsed.data.password, 12);
-
-  try {
-    await db.transaction(async (tx) => {
-      await tx.insert(users).values({
-        id: userId,
-        username: parsed.data.username,
-        passwordHash,
-        role: "ALUMNI",
-        status: "PENDING",
-      });
-
-      await tx.insert(alumniProfiles).values({
-        id: profileId,
-        userId,
-        fullName: parsed.data.fullName,
-        highSchoolMajor: parsed.data.highSchoolMajor,
-        collegeMajor: parsed.data.collegeMajor,
-        birthPlace: parsed.data.birthPlace,
-        birthDate: parsed.data.birthDate,
-        email: optional(parsed.data.email ?? ""),
-        phone: optional(parsed.data.phone ?? ""),
-      });
-    });
-  } catch {
-    return { error: "Registrasi belum berhasil disimpan. Silakan coba lagi.", values };
-  }
-
   await signIn("credentials", {
-    username: parsed.data.username,
-    password: parsed.data.password,
+    username: result.username,
+    password: stringValue(formData, "password"),
     redirectTo: "/status-akun?status=pending",
   });
 
