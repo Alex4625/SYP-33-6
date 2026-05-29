@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { MenuIcon, UsersRoundIcon, XIcon } from "lucide-react";
+import { LayoutDashboardIcon, LogOutIcon, MenuIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 import { DarkModeToggle } from "@/components/shared/DarkModeToggle";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -14,8 +14,49 @@ const navItems = [
   { href: "/galeri", label: "Galeri" },
 ];
 
-export function Navbar() {
+type NavbarViewer = {
+  role?: string | null;
+  status?: string | null;
+  username?: string | null;
+} | null;
+
+export function Navbar({
+  viewer = null,
+  signOutAction,
+}: {
+  viewer?: NavbarViewer;
+  signOutAction?: () => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
+  const dashboardHref =
+    viewer?.role === "ADMIN"
+      ? "/admin"
+      : viewer?.status === "APPROVED"
+        ? "/dashboard"
+        : "/status-akun";
+  const dashboardLabel = viewer?.role === "ADMIN" ? "Panel Admin" : "Dashboard";
+
+  const authActions = viewer ? (
+    <>
+      <Link href={dashboardHref} className={cn(buttonVariants({ variant: "outline" }))}>
+        <LayoutDashboardIcon className="size-4" aria-hidden="true" />
+        {dashboardLabel}
+      </Link>
+      {signOutAction ? (
+        <form action={signOutAction}>
+          <Button type="submit" variant="ghost">
+            <LogOutIcon className="size-4" aria-hidden="true" />
+            Keluar
+          </Button>
+        </form>
+      ) : null}
+    </>
+  ) : (
+    <>
+      <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
+      <Link href="/daftar" className={cn(buttonVariants())}>Daftar</Link>
+    </>
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
@@ -35,8 +76,7 @@ export function Navbar() {
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <DarkModeToggle />
-          <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
-          <Link href="/daftar" className={cn(buttonVariants())}>Daftar</Link>
+          {authActions}
         </div>
         <div className="flex items-center gap-2 md:hidden">
           <DarkModeToggle />
@@ -53,9 +93,32 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
-              <Link href="/daftar" className={cn(buttonVariants())}>Daftar</Link>
+            <div className={cn("mt-2 grid gap-2", viewer ? "grid-cols-1" : "grid-cols-2")}>
+              {viewer ? (
+                <>
+                  <Link
+                    href={dashboardHref}
+                    className={cn(buttonVariants({ variant: "outline" }))}
+                    onClick={() => setOpen(false)}
+                  >
+                    <LayoutDashboardIcon className="size-4" aria-hidden="true" />
+                    {dashboardLabel}
+                  </Link>
+                  {signOutAction ? (
+                    <form action={signOutAction}>
+                      <Button type="submit" variant="ghost" className="w-full">
+                        <LogOutIcon className="size-4" aria-hidden="true" />
+                        Keluar
+                      </Button>
+                    </form>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))} onClick={() => setOpen(false)}>Masuk</Link>
+                  <Link href="/daftar" className={cn(buttonVariants())} onClick={() => setOpen(false)}>Daftar</Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

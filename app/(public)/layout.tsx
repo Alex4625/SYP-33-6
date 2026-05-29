@@ -1,13 +1,30 @@
 import Link from "next/link";
 
 import { Navbar } from "@/components/shared/Navbar";
+import { auth, signOut } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  const signOutRedirectTo = session?.user.role === "ADMIN" ? "/admin/login" : "/login";
+
+  async function signOutAction() {
+    "use server";
+    await signOut({ redirectTo: signOutRedirectTo });
+  }
+
+  const viewer = session?.user
+    ? {
+        role: session.user.role,
+        status: session.user.status,
+        username: session.user.username,
+      }
+    : null;
+
   return (
     <>
-      <Navbar />
+      <Navbar viewer={viewer} signOutAction={viewer ? signOutAction : undefined} />
       <main className="flex-1">{children}</main>
       <footer className="border-t bg-card">
         <div className="container grid gap-4 py-8 text-sm text-muted-foreground md:flex md:items-center md:justify-between">

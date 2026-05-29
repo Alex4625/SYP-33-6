@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3Icon, CameraIcon, ClipboardCheckIcon, FileTextIcon, LayoutDashboardIcon, LogOutIcon, UsersIcon } from "lucide-react";
+import {
+  BarChart3Icon,
+  CameraIcon,
+  ClipboardCheckIcon,
+  FileTextIcon,
+  Globe2Icon,
+  LayoutDashboardIcon,
+  LogOutIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboardIcon },
+  { href: "/", label: "Lihat Situs", icon: Globe2Icon },
   { href: "/admin/verifikasi", label: "Verifikasi", icon: ClipboardCheckIcon },
   { href: "/admin/alumni", label: "Alumni", icon: UsersIcon },
   { href: "/admin/postingan", label: "Postingan", icon: FileTextIcon },
@@ -34,7 +44,9 @@ export function AdminSidebar({
       <nav className="flex-1 space-y-1 p-3">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = pathname === item.href;
+          const active =
+            pathname === item.href ||
+            (item.href !== "/" && item.href !== "/admin" && pathname.startsWith(`${item.href}/`));
           return (
             <Link
               key={item.href}
