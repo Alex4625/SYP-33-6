@@ -42,7 +42,7 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
             )}
           </div>
           <div className="min-w-0">
-            <Link href={`/alumni/${post.author.username}`} className="line-clamp-1 text-sm font-semibold hover:text-primary">
+            <Link href={`/alumni/${post.author.username}`} prefetch={false} className="line-clamp-1 text-sm font-semibold hover:text-primary">
               {authorName}
             </Link>
             <p className="text-xs text-muted-foreground">{formatShortDate(post.createdAt)}</p>

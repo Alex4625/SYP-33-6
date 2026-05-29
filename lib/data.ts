@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, gte, inArray, isNotNull, like, lt, or, sql } from "drizzle-orm";
 
-import { getCloudflareDb } from "@/db";
+import { getCloudflareDb, type Database } from "@/db";
 import {
   adminLogs,
   alumniProfiles,
@@ -129,28 +129,29 @@ function alumniWhere(filters: AlumniFilters) {
 export async function getHomeData() {
   const db = await getCloudflareDb();
 
-  const [totalAlumniRow, totalPostsRow, totalGalleryRow, latestAlumni, latestPosts] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(users)
-      .where(and(eq(users.role, "ALUMNI"), eq(users.status, "APPROVED"))),
-    db.select({ value: count() }).from(posts).where(eq(posts.isHidden, false)),
-    db.select({ value: count() }).from(galleryPhotos).where(eq(galleryPhotos.isHidden, false)),
-    getAlumniCards({}, 6, 0),
-    getPostCards({ limit: 3, offset: 0, publicOnly: true }),
+  const [totals, latestAlumni, latestPosts] = await Promise.all([
+    db.all<{ totalAlumni: number; totalPosts: number; totalGallery: number }>(sql`
+      select
+        (select count(*) from users where role = 'ALUMNI' and status = 'APPROVED') as totalAlumni,
+        (select count(*) from posts where is_hidden = 0) as totalPosts,
+        (select count(*) from gallery_photos where is_hidden = 0) as totalGallery
+    `),
+    getAlumniCards({}, 6, 0, db),
+    getPostCards({ limit: 3, offset: 0, publicOnly: true }, db),
   ]);
+  const counts = totals[0];
 
   return {
-    totalAlumni: totalAlumniRow[0]?.value ?? 0,
-    totalPosts: totalPostsRow[0]?.value ?? 0,
-    totalGallery: totalGalleryRow[0]?.value ?? 0,
+    totalAlumni: counts?.totalAlumni ?? 0,
+    totalPosts: counts?.totalPosts ?? 0,
+    totalGallery: counts?.totalGallery ?? 0,
     latestAlumni,
     latestPosts,
   };
 }
 
-export async function getAlumniCards(filters: AlumniFilters, limit: number, offset: number) {
-  const db = await getCloudflareDb();
+export async function getAlumniCards(filters: AlumniFilters, limit: number, offset: number, database?: Database) {
+  const db = database ?? await getCloudflareDb();
   const rows = await db
     .select({
       fullName: alumniProfiles.fullName,
@@ -192,8 +193,8 @@ export async function getPostCards({
   offset?: number;
   publicOnly?: boolean;
   userId?: string;
-}) {
-  const db = await getCloudflareDb();
+}, database?: Database) {
+  const db = database ?? await getCloudflareDb();
   const conditions = compactFilters([
     publicOnly ? eq(posts.isHidden, false) : undefined,
     publicOnly ? eq(users.status, "APPROVED") : undefined,

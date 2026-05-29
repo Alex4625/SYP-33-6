@@ -38,7 +38,7 @@ export function Navbar({
 
   const authActions = viewer ? (
     <>
-      <Link href={dashboardHref} className={cn(buttonVariants({ variant: "outline" }))}>
+      <Link href={dashboardHref} prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>
         <LayoutDashboardIcon className="size-4" aria-hidden="true" />
         {dashboardLabel}
       </Link>
@@ -53,15 +53,15 @@ export function Navbar({
     </>
   ) : (
     <>
-      <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
-      <Link href="/daftar" className={cn(buttonVariants())}>Daftar</Link>
+      <Link href="/login" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
+      <Link href="/daftar" prefetch={false} className={cn(buttonVariants())}>Daftar</Link>
     </>
   );
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Link href="/" prefetch={false} className="flex items-center gap-2 font-semibold">
           <span className="rounded-md bg-primary p-2 text-primary-foreground">
             <UsersRoundIcon className="size-4" aria-hidden="true" />
           </span>
@@ -69,7 +69,7 @@ export function Navbar({
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+            <Link key={item.href} href={item.href} prefetch={false} className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
               {item.label}
             </Link>
           ))}
@@ -89,7 +89,7 @@ export function Navbar({
         <div className="border-t bg-background md:hidden">
           <nav className="container grid gap-1 py-3">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link key={item.href} href={item.href} prefetch={false} className="rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}
@@ -98,6 +98,7 @@ export function Navbar({
                 <>
                   <Link
                     href={dashboardHref}
+                    prefetch={false}
                     className={cn(buttonVariants({ variant: "outline" }))}
                     onClick={() => setOpen(false)}
                   >
@@ -115,8 +116,8 @@ export function Navbar({
                 </>
               ) : (
                 <>
-                  <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))} onClick={() => setOpen(false)}>Masuk</Link>
-                  <Link href="/daftar" className={cn(buttonVariants())} onClick={() => setOpen(false)}>Daftar</Link>
+                  <Link href="/login" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))} onClick={() => setOpen(false)}>Masuk</Link>
+                  <Link href="/daftar" prefetch={false} className={cn(buttonVariants())} onClick={() => setOpen(false)}>Daftar</Link>
                 </>
               )}
             </div>

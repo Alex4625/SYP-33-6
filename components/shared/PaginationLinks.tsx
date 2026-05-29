@@ -34,6 +34,7 @@ export function PaginationLinks({
     <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Paginasi">
       <Link
         href={pageHref(basePath, searchParams, Math.max(1, currentPage - 1))}
+        prefetch={false}
         className={cn(buttonVariants({ variant: "outline" }), currentPage === 1 && "pointer-events-none opacity-50")}
       >
         Sebelumnya
@@ -43,6 +44,7 @@ export function PaginationLinks({
       </span>
       <Link
         href={pageHref(basePath, searchParams, Math.min(totalPages, currentPage + 1))}
+        prefetch={false}
         className={cn(buttonVariants({ variant: "outline" }), currentPage === totalPages && "pointer-events-none opacity-50")}
       >
         Berikutnya

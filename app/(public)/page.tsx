@@ -44,11 +44,11 @@ export default async function HomePage() {
               Ruang digital hangat untuk menemukan kembali teman sekolah, berbagi cerita, dan menjaga kenangan komunitas tetap rapi.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/daftar" className={cn(buttonVariants({ size: "lg" }), "h-11")}>
+              <Link href="/daftar" prefetch={false} className={cn(buttonVariants({ size: "lg" }), "h-11")}>
                 Daftar Sekarang
                 <ArrowRightIcon className="size-4" aria-hidden="true" />
               </Link>
-              <Link href="/alumni" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11")}>
+              <Link href="/alumni" prefetch={false} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11")}>
                 Lihat Direktori
               </Link>
             </div>
@@ -90,7 +90,7 @@ export default async function HomePage() {
               <h2 className="text-2xl font-semibold">Alumni Terbaru</h2>
               <p className="text-sm text-muted-foreground">Profil alumni yang sudah diverifikasi admin.</p>
             </div>
-            <Link href="/alumni" className={cn(buttonVariants({ variant: "outline" }))}>Lihat semua</Link>
+            <Link href="/alumni" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>Lihat semua</Link>
           </div>
           {latestAlumni.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -108,7 +108,7 @@ export default async function HomePage() {
             <h2 className="text-2xl font-semibold">Postingan Terbaru</h2>
             <p className="text-sm text-muted-foreground">Cerita dan kenangan terbaru dari alumni.</p>
           </div>
-          <Link href="/postingan" className={cn(buttonVariants({ variant: "outline" }))}>Buka feed</Link>
+          <Link href="/postingan" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>Buka feed</Link>
         </div>
         {latestPosts.length > 0 ? (
           <div className="grid gap-4 lg:grid-cols-3">

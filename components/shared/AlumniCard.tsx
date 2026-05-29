@@ -52,6 +52,7 @@ export function AlumniCard({ alumni }: { alumni: AlumniCardData }) {
         </div>
         <Link
           href={`/alumni/${alumni.user.username}`}
+          prefetch={false}
           className={cn(buttonVariants({ variant: "outline" }), "mt-4 w-full")}
         >
           Lihat Profil

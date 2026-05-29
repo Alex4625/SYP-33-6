@@ -29,10 +29,10 @@ export default async function PublicLayout({ children }: { children: React.React
         <div className="container grid gap-4 py-8 text-sm text-muted-foreground md:flex md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Alumni SYP-33-6. Semua hak dilindungi.</p>
           <nav className="flex flex-wrap gap-4">
-            <Link href="/alumni" className="hover:text-foreground">Direktori</Link>
-            <Link href="/postingan" className="hover:text-foreground">Postingan</Link>
-            <Link href="/galeri" className="hover:text-foreground">Galeri</Link>
-            <Link href="/admin/login" className="hover:text-foreground">Admin</Link>
+            <Link href="/alumni" prefetch={false} className="hover:text-foreground">Direktori</Link>
+            <Link href="/postingan" prefetch={false} className="hover:text-foreground">Postingan</Link>
+            <Link href="/galeri" prefetch={false} className="hover:text-foreground">Galeri</Link>
+            <Link href="/admin/login" prefetch={false} className="hover:text-foreground">Admin</Link>
           </nav>
         </div>
       </footer>
