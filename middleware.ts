@@ -4,6 +4,8 @@ import { getToken } from "next-auth/jwt";
 const rateLimitStore = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW_MS = 10_000;
 const RATE_LIMIT_MAX = 5;
+const SECURE_SESSION_COOKIE = "__Secure-authjs.session-token";
+const SESSION_COOKIE = "authjs.session-token";
 
 function getClientIp(request: NextRequest) {
   return (
@@ -34,6 +36,13 @@ function isRateLimited(request: NextRequest) {
   return false;
 }
 
+function getSessionCookieName(request: NextRequest) {
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  return cookieHeader.includes(`${SECURE_SESSION_COOKIE}=`)
+    ? SECURE_SESSION_COOKIE
+    : SESSION_COOKIE;
+}
+
 export async function middleware(request: NextRequest) {
   if (isRateLimited(request)) {
     return new NextResponse("Terlalu banyak percobaan. Silakan tunggu beberapa saat.", {
@@ -42,9 +51,13 @@ export async function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  const cookieName = getSessionCookieName(request);
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    cookieName,
+    salt: cookieName,
+    secureCookie: cookieName === SECURE_SESSION_COOKIE,
   });
 
   const redirect = (path: string) =>
