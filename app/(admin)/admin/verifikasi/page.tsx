@@ -5,19 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { approveAlumni, rejectAlumni } from "@/lib/actions";
+import { getPendingUsers } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Verifikasi Alumni",
 };
 
 export default async function VerificationPage() {
-  const users = await prisma.user.findMany({
-    where: { role: "ALUMNI", status: "PENDING" },
-    orderBy: { createdAt: "asc" },
-    include: { alumniProfile: true },
-  });
+  const users = await getPendingUsers();
 
   async function rejectAction(formData: FormData) {
     "use server";

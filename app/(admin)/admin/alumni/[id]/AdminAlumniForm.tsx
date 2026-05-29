@@ -1,17 +1,27 @@
 "use client";
 
 import { useActionState } from "react";
-import type { AlumniProfile } from "@prisma/client";
 import { SaveIcon } from "lucide-react";
 
+import type { AlumniProfile } from "@/db/schema";
 import { adminUpdateAlumni } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-function dateValue(date: Date) {
+function dateValue(date: Date | string) {
+  if (typeof date === "string") return date.slice(0, 10);
   return date.toISOString().slice(0, 10);
+}
+
+function socialValue(value: string | null) {
+  if (!value) return "";
+  try {
+    return JSON.stringify(JSON.parse(value), null, 2);
+  } catch {
+    return value;
+  }
 }
 
 export function AdminAlumniForm({ userId, profile }: { userId: string; profile: AlumniProfile }) {
@@ -83,7 +93,7 @@ export function AdminAlumniForm({ userId, profile }: { userId: string; profile: 
       </div>
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="socialMedia">Media sosial</Label>
-        <Textarea id="socialMedia" name="socialMedia" defaultValue={profile.socialMedia ? JSON.stringify(profile.socialMedia) : ""} rows={3} />
+        <Textarea id="socialMedia" name="socialMedia" defaultValue={socialValue(profile.socialMedia)} rows={3} />
       </div>
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="bio">Bio</Label>

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import type { Prisma } from "@prisma/client";
 import { EyeIcon, EyeOffIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { adminDeletePost, togglePostVisibility } from "@/lib/actions";
+import { getAdminPosts } from "@/lib/data";
 import { formatShortDate, truncateText } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Kelola Postingan",
@@ -25,20 +26,7 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
   const q = value(params, "q");
   const status = value(params, "status");
 
-  const where: Prisma.PostWhereInput = {
-    ...(status === "hidden" ? { isHidden: true } : {}),
-    ...(status === "public" ? { isHidden: false } : {}),
-    ...(q ? { author: { alumniProfile: { fullName: { contains: q } } } } : {}),
-  };
-
-  const posts = await prisma.post.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: {
-      images: true,
-      author: { include: { alumniProfile: true } },
-    },
-  });
+  const posts = await getAdminPosts({ q, status });
 
   return (
     <div className="container py-8">

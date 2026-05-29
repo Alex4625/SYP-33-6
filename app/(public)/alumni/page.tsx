@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import type { Prisma } from "@prisma/client";
 
 import { AlumniCard } from "@/components/shared/AlumniCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { FilterBar } from "@/components/shared/FilterBar";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
-import { prisma } from "@/lib/prisma";
+import { countAlumniCards, getAlumniCards } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Direktori Alumni",
 };
-
-export const revalidate = 60;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -30,40 +29,10 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
   const prodi = param(params, "prodi");
   const domisili = param(params, "domisili");
 
-  const where: Prisma.AlumniProfileWhereInput = {
-    user: { role: "ALUMNI", status: "APPROVED" },
-    ...(q ? { fullName: { contains: q } } : {}),
-    ...(jurusan === "IPA" || jurusan === "IPS" ? { highSchoolMajor: jurusan } : {}),
-    ...(prodi ? { collegeMajor: { contains: prodi } } : {}),
-    ...(domisili
-      ? {
-          OR: [
-            { domicileCity: { contains: domisili } },
-            { domicileProvince: { contains: domisili } },
-            { originCity: { contains: domisili } },
-            { originProvince: { contains: domisili } },
-          ],
-        }
-      : {}),
-  };
-
-  const [alumni, total] = await prisma.$transaction([
-    prisma.alumniProfile.findMany({
-      where,
-      orderBy: { fullName: "asc" },
-      skip,
-      take,
-      select: {
-        fullName: true,
-        highSchoolMajor: true,
-        collegeMajor: true,
-        domicileCity: true,
-        domicileProvince: true,
-        profilePhotoUrl: true,
-        user: { select: { username: true } },
-      },
-    }),
-    prisma.alumniProfile.count({ where }),
+  const filters = { q, jurusan, prodi, domisili };
+  const [alumni, total] = await Promise.all([
+    getAlumniCards(filters, take, skip),
+    countAlumniCards(filters),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / take));

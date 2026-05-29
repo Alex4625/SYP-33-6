@@ -1,22 +1,25 @@
 "use server";
 
-import { AccountStatus, type HighSchoolMajor, type Prisma } from "@prisma/client";
+import { and, eq, gt, inArray } from "drizzle-orm";
 import { hash } from "bcryptjs";
-import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getCloudflareDb, type Database } from "@/db";
+import { adminLogs, alumniProfiles, galleryPhotos, postImages, posts, users, type HighSchoolMajor } from "@/db/schema";
 import { auth, signIn } from "@/lib/auth";
-import { deleteFromCloudinary, uploadToCloudinary, type CloudinaryUploadResult } from "@/lib/cloudinary";
-import { prisma } from "@/lib/prisma";
+import { deleteFromR2, generateR2Key, uploadToR2 } from "@/lib/r2";
 import { sendPasswordResetEmail } from "@/lib/resend";
 import {
+  MAX_POST_PHOTO_SIZE,
+  MAX_PROFILE_PHOTO_SIZE,
   createPostSchema,
   editProfileSchema,
   forgotPasswordSchema,
   registerSchema,
   resetPasswordSchema,
   uploadGallerySchema,
+  validateImageFile,
   type ActionFieldErrors,
 } from "@/lib/validations";
 
@@ -27,7 +30,6 @@ export type ActionState = {
 };
 
 const emptyState: ActionState = {};
-const imageTypes = ["image/jpeg", "image/png", "image/webp"];
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -49,20 +51,10 @@ function readFiles(formData: FormData, key: string) {
   return formData.getAll(key).filter((file): file is File => file instanceof File && file.size > 0);
 }
 
-function validateImageFile(file: File, maxSizeMb: number) {
-  if (!imageTypes.includes(file.type)) {
-    return "Format file tidak didukung. Gunakan JPG, JPEG, PNG, atau WEBP.";
-  }
-
-  if (file.size > maxSizeMb * 1024 * 1024) {
-    return `Ukuran file melebihi batas ${maxSizeMb}MB. Pilih file yang lebih kecil.`;
-  }
-
-  return null;
-}
-
-async function fileToBuffer(file: File) {
-  return Buffer.from(await file.arrayBuffer());
+async function uploadImage(file: File, folder: string) {
+  const key = generateR2Key(folder, file.name);
+  const imageUrl = await uploadToR2(await file.arrayBuffer(), key, file.type);
+  return { imageUrl, imageKey: key };
 }
 
 async function requireAlumni() {
@@ -86,20 +78,20 @@ async function requireAdmin() {
 }
 
 async function writeAdminLog(
+  db: Database,
   adminId: string,
   action: string,
   targetType: string,
   targetId?: string | null,
   description?: string,
 ) {
-  await prisma.adminLog.create({
-    data: {
-      adminId,
-      action,
-      targetType,
-      targetId,
-      description,
-    },
+  await db.insert(adminLogs).values({
+    id: crypto.randomUUID(),
+    adminId,
+    action,
+    targetType,
+    targetId,
+    description,
   });
 }
 
@@ -124,19 +116,16 @@ function profileDataFromForm(formData: FormData) {
   };
 }
 
-function socialMediaJson(value: string): Prisma.InputJsonValue | undefined {
-  if (!value.trim()) return undefined;
+function socialMediaJson(value: string) {
+  if (!value.trim()) return null;
 
   try {
-    return JSON.parse(value) as Prisma.InputJsonValue;
+    return JSON.stringify(JSON.parse(value));
   } catch {
-    return [{ platform: "Media sosial", url: value.trim() }];
+    return JSON.stringify([{ platform: "Media sosial", url: value.trim() }]);
   }
 }
 
-/**
- * Daftarkan alumni baru dengan status PENDING.
- */
 export async function registerAlumni(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const parsed = registerSchema.safeParse({
@@ -156,39 +145,35 @@ export async function registerAlumni(_state: ActionState = emptyState, formData:
     return { error: "Periksa kembali data registrasi.", fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { username: parsed.data.username },
-    select: { id: true },
-  });
+  const db = await getCloudflareDb();
+  const [existingUser] = await db.select({ id: users.id }).from(users).where(eq(users.username, parsed.data.username)).limit(1);
 
   if (existingUser) {
     return { error: "Username sudah digunakan, silakan pilih yang lain", fieldErrors: { username: ["Username sudah digunakan"] } };
   }
 
+  const userId = crypto.randomUUID();
+  const profileId = crypto.randomUUID();
   const passwordHash = await hash(parsed.data.password, 12);
 
-  await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        username: parsed.data.username,
-        passwordHash,
-        role: "ALUMNI",
-        status: "PENDING",
-      },
-    });
+  await db.insert(users).values({
+    id: userId,
+    username: parsed.data.username,
+    passwordHash,
+    role: "ALUMNI",
+    status: "PENDING",
+  });
 
-    await tx.alumniProfile.create({
-      data: {
-        userId: user.id,
-        fullName: parsed.data.fullName,
-        highSchoolMajor: parsed.data.highSchoolMajor,
-        collegeMajor: parsed.data.collegeMajor,
-        birthPlace: parsed.data.birthPlace,
-        birthDate: new Date(parsed.data.birthDate),
-        email: optional(parsed.data.email ?? ""),
-        phone: optional(parsed.data.phone ?? ""),
-      },
-    });
+  await db.insert(alumniProfiles).values({
+    id: profileId,
+    userId,
+    fullName: parsed.data.fullName,
+    highSchoolMajor: parsed.data.highSchoolMajor,
+    collegeMajor: parsed.data.collegeMajor,
+    birthPlace: parsed.data.birthPlace,
+    birthDate: parsed.data.birthDate,
+    email: optional(parsed.data.email ?? ""),
+    phone: optional(parsed.data.phone ?? ""),
   });
 
   await signIn("credentials", {
@@ -200,9 +185,6 @@ export async function registerAlumni(_state: ActionState = emptyState, formData:
   return { success: "Registrasi berhasil, menunggu verifikasi admin." };
 }
 
-/**
- * Kirim tautan reset password jika email terdaftar.
- */
 export async function requestPasswordReset(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const parsed = forgotPasswordSchema.safeParse({
@@ -213,33 +195,38 @@ export async function requestPasswordReset(_state: ActionState = emptyState, for
     return { error: "Email tidak valid.", fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const profile = await prisma.alumniProfile.findFirst({
-    where: { email: parsed.data.email },
-    include: { user: true },
-  });
+  const db = await getCloudflareDb();
+  const [profile] = await db
+    .select({
+      userId: alumniProfiles.userId,
+      email: alumniProfiles.email,
+      username: users.username,
+    })
+    .from(alumniProfiles)
+    .innerJoin(users, eq(alumniProfiles.userId, users.id))
+    .where(eq(alumniProfiles.email, parsed.data.email))
+    .limit(1);
 
-  if (profile) {
-    const token = randomUUID();
+  if (profile?.email) {
+    const token = crypto.randomUUID();
     const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-    await prisma.user.update({
-      where: { id: profile.userId },
-      data: {
+    await db
+      .update(users)
+      .set({
         resetToken: token,
         resetTokenExpires: expires,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, profile.userId));
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-    await sendPasswordResetEmail(profile.email!, `${appUrl}/reset-password/${token}`, profile.user.username);
+    await sendPasswordResetEmail(profile.email, `${appUrl}/reset-password/${token}`, profile.username);
   }
 
   return { success: "Jika email terdaftar, link reset password akan dikirim." };
 }
 
-/**
- * Simpan password baru berdasarkan token reset yang masih berlaku.
- */
 export async function resetPassword(token: string, _state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const parsed = resetPasswordSchema.safeParse({
@@ -251,32 +238,30 @@ export async function resetPassword(token: string, _state: ActionState = emptySt
     return { error: "Periksa password baru Anda.", fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const user = await prisma.user.findFirst({
-    where: {
-      resetToken: token,
-      resetTokenExpires: { gt: new Date() },
-    },
-  });
+  const db = await getCloudflareDb();
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.resetToken, token), gt(users.resetTokenExpires, new Date())))
+    .limit(1);
 
   if (!user) {
     return { error: "Link reset password sudah kadaluarsa. Silakan minta link baru." };
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
+  await db
+    .update(users)
+    .set({
       passwordHash: await hash(parsed.data.password, 12),
       resetToken: null,
       resetTokenExpires: null,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
 
   redirect("/login?reset=success");
 }
 
-/**
- * Perbarui profil alumni yang sedang login.
- */
 export async function updateProfile(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const user = await requireAlumni();
@@ -286,31 +271,30 @@ export async function updateProfile(_state: ActionState = emptyState, formData: 
     return { error: "Periksa kembali data profil.", fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const profile = await prisma.alumniProfile.findUnique({
-    where: { userId: user.id },
-  });
+  const db = await getCloudflareDb();
+  const [profile] = await db.select().from(alumniProfiles).where(eq(alumniProfiles.userId, user.id)).limit(1);
 
   if (!profile) {
     return { error: "Profil tidak ditemukan." };
   }
 
   const photo = readFile(formData, "profilePhoto");
-  let uploadedPhoto: CloudinaryUploadResult | null = null;
+  let uploadedPhoto: { imageUrl: string; imageKey: string } | null = null;
 
   if (photo) {
-    const fileError = validateImageFile(photo, 2);
-    if (fileError) return { error: fileError };
-    uploadedPhoto = await uploadToCloudinary(await fileToBuffer(photo), "profiles");
+    const validation = validateImageFile(photo, MAX_PROFILE_PHOTO_SIZE);
+    if (!validation.valid) return { error: validation.error };
+    uploadedPhoto = await uploadImage(photo, "profiles");
   }
 
-  await prisma.alumniProfile.update({
-    where: { userId: user.id },
-    data: {
+  await db
+    .update(alumniProfiles)
+    .set({
       fullName: parsed.data.fullName,
       highSchoolMajor: parsed.data.highSchoolMajor,
       collegeMajor: parsed.data.collegeMajor,
       birthPlace: parsed.data.birthPlace,
-      birthDate: new Date(parsed.data.birthDate),
+      birthDate: parsed.data.birthDate,
       email: optional(parsed.data.email ?? ""),
       phone: optional(parsed.data.phone ?? ""),
       address: optional(parsed.data.address ?? ""),
@@ -322,27 +306,25 @@ export async function updateProfile(_state: ActionState = emptyState, formData: 
       portfolioUrl: optional(parsed.data.portfolioUrl ?? ""),
       socialMedia: socialMediaJson(parsed.data.socialMedia ?? ""),
       bio: optional(parsed.data.bio ?? ""),
+      updatedAt: new Date(),
       ...(uploadedPhoto
         ? {
             profilePhotoUrl: uploadedPhoto.imageUrl,
-            profilePhotoPublicId: uploadedPhoto.imagePublicId,
+            profilePhotoKey: uploadedPhoto.imageKey,
           }
         : {}),
-    },
-  });
+    })
+    .where(eq(alumniProfiles.userId, user.id));
 
-  if (uploadedPhoto && profile.profilePhotoPublicId) {
-    await deleteFromCloudinary(profile.profilePhotoPublicId);
+  if (uploadedPhoto && profile.profilePhotoKey) {
+    await deleteFromR2(profile.profilePhotoKey);
   }
 
   revalidatePath("/dashboard/profil");
-  revalidatePath(`/alumni/${user.username ?? user.name ?? ""}`);
+  revalidatePath(`/alumni/${user.username ?? ""}`);
   return { success: "Profil berhasil diperbarui." };
 }
 
-/**
- * Buat postingan alumni dengan foto opsional.
- */
 export async function createPost(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const user = await requireAlumni();
@@ -356,32 +338,39 @@ export async function createPost(_state: ActionState = emptyState, formData: For
   if (files.length > 4) return { error: "Maksimal 4 foto per postingan." };
 
   for (const file of files) {
-    const fileError = validateImageFile(file, 5);
-    if (fileError) return { error: fileError };
+    const validation = validateImageFile(file, MAX_POST_PHOTO_SIZE);
+    if (!validation.valid) return { error: validation.error };
   }
 
-  const uploaded: CloudinaryUploadResult[] = [];
+  const db = await getCloudflareDb();
+  const uploaded: { imageUrl: string; imageKey: string }[] = [];
+  const postId = crypto.randomUUID();
 
   try {
     for (const file of files) {
-      uploaded.push(await uploadToCloudinary(await fileToBuffer(file), "posts"));
+      uploaded.push(await uploadImage(file, "posts"));
     }
 
-    await prisma.post.create({
-      data: {
-        userId: user.id,
-        caption: parsed.data.caption,
-        images: {
-          create: uploaded.map((image, index) => ({
-            imageUrl: image.imageUrl,
-            imagePublicId: image.imagePublicId,
-            orderIndex: index,
-          })),
-        },
-      },
+    await db.insert(posts).values({
+      id: postId,
+      userId: user.id,
+      caption: parsed.data.caption,
     });
+
+    if (uploaded.length > 0) {
+      await db.insert(postImages).values(
+        uploaded.map((image, index) => ({
+          id: crypto.randomUUID(),
+          postId,
+          imageUrl: image.imageUrl,
+          imageKey: image.imageKey,
+          orderIndex: index,
+        })),
+      );
+    }
   } catch (error) {
-    await Promise.all(uploaded.map((image) => deleteFromCloudinary(image.imagePublicId)));
+    await Promise.all(uploaded.map((image) => deleteFromR2(image.imageKey)));
+    await db.delete(posts).where(eq(posts.id, postId));
     throw error;
   }
 
@@ -390,27 +379,20 @@ export async function createPost(_state: ActionState = emptyState, formData: For
   redirect("/dashboard/postingan");
 }
 
-/**
- * Hapus postingan milik alumni yang sedang login.
- */
 export async function deleteOwnPost(postId: string) {
   const user = await requireAlumni();
-  const post = await prisma.post.findFirst({
-    where: { id: postId, userId: user.id },
-    include: { images: true },
-  });
+  const db = await getCloudflareDb();
+  const [post] = await db.select().from(posts).where(and(eq(posts.id, postId), eq(posts.userId, user.id))).limit(1);
 
   if (!post) throw new Error("Postingan tidak ditemukan.");
 
-  await Promise.all(post.images.map((image) => deleteFromCloudinary(image.imagePublicId)));
-  await prisma.post.delete({ where: { id: postId } });
+  const images = await db.select().from(postImages).where(eq(postImages.postId, postId));
+  await Promise.all(images.map((image) => deleteFromR2(image.imageKey)));
+  await db.delete(posts).where(eq(posts.id, postId));
   revalidatePath("/dashboard/postingan");
   revalidatePath("/postingan");
 }
 
-/**
- * Upload satu foto ke galeri kenangan.
- */
 export async function uploadGalleryPhoto(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const session = await auth();
@@ -424,17 +406,17 @@ export async function uploadGalleryPhoto(_state: ActionState = emptyState, formD
   const file = readFile(formData, "image");
   if (!file) return { error: "Foto wajib dipilih." };
 
-  const fileError = validateImageFile(file, 5);
-  if (fileError) return { error: fileError };
+  const validation = validateImageFile(file, MAX_POST_PHOTO_SIZE);
+  if (!validation.valid) return { error: validation.error };
 
-  const uploaded = await uploadToCloudinary(await fileToBuffer(file), "gallery");
-  await prisma.galleryPhoto.create({
-    data: {
-      uploadedById: session.user.id,
-      imageUrl: uploaded.imageUrl,
-      imagePublicId: uploaded.imagePublicId,
-      caption: optional(parsed.data.caption ?? ""),
-    },
+  const db = await getCloudflareDb();
+  const uploaded = await uploadImage(file, "gallery");
+  await db.insert(galleryPhotos).values({
+    id: crypto.randomUUID(),
+    uploadedById: session.user.id,
+    imageUrl: uploaded.imageUrl,
+    imageKey: uploaded.imageKey,
+    caption: optional(parsed.data.caption ?? ""),
   });
 
   revalidatePath("/galeri");
@@ -442,23 +424,18 @@ export async function uploadGalleryPhoto(_state: ActionState = emptyState, formD
   redirect(session.user.role === "ADMIN" ? "/admin/galeri" : "/dashboard");
 }
 
-/**
- * Setujui registrasi alumni.
- */
 export async function approveAlumni(userId: string) {
   const admin = await requireAdmin();
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status: AccountStatus.APPROVED, rejectionReason: null },
-  });
-  await writeAdminLog(admin.id, "APPROVE_ALUMNI", "USER", userId, "Menyetujui registrasi alumni");
+  const db = await getCloudflareDb();
+  await db
+    .update(users)
+    .set({ status: "APPROVED", rejectionReason: null, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+  await writeAdminLog(db, admin.id, "APPROVE_ALUMNI", "USER", userId, "Menyetujui registrasi alumni");
   revalidatePath("/admin/verifikasi");
   revalidatePath("/admin/alumni");
 }
 
-/**
- * Tolak registrasi alumni dengan alasan opsional.
- */
 export async function rejectAlumni(
   stateOrFormData: ActionState | FormData = emptyState,
   maybeFormData?: FormData,
@@ -470,63 +447,56 @@ export async function rejectAlumni(
 
   if (!userId) return { error: "Alumni tidak valid." };
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status: AccountStatus.REJECTED, rejectionReason: reason },
-  });
-  await writeAdminLog(admin.id, "REJECT_ALUMNI", "USER", userId, reason ?? "Menolak registrasi alumni");
+  const db = await getCloudflareDb();
+  await db
+    .update(users)
+    .set({ status: "REJECTED", rejectionReason: reason, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+  await writeAdminLog(db, admin.id, "REJECT_ALUMNI", "USER", userId, reason ?? "Menolak registrasi alumni");
   revalidatePath("/admin/verifikasi");
   revalidatePath("/admin/alumni");
   return { success: "Registrasi alumni ditolak." };
 }
 
-/**
- * Nonaktifkan atau aktifkan kembali akun alumni.
- */
 export async function toggleAlumniStatus(userId: string) {
   const admin = await requireAdmin();
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { status: true } });
+  const db = await getCloudflareDb();
+  const [user] = await db.select({ status: users.status }).from(users).where(eq(users.id, userId)).limit(1);
   if (!user) throw new Error("Alumni tidak ditemukan.");
 
   const nextStatus = user.status === "DISABLED" ? "APPROVED" : "DISABLED";
-  await prisma.user.update({ where: { id: userId }, data: { status: nextStatus } });
-  await writeAdminLog(admin.id, "TOGGLE_ALUMNI_STATUS", "USER", userId, `Mengubah status alumni menjadi ${nextStatus}`);
+  await db.update(users).set({ status: nextStatus, updatedAt: new Date() }).where(eq(users.id, userId));
+  await writeAdminLog(db, admin.id, "TOGGLE_ALUMNI_STATUS", "USER", userId, `Mengubah status alumni menjadi ${nextStatus}`);
   revalidatePath("/admin/alumni");
   revalidatePath(`/admin/alumni/${userId}`);
 }
 
-/**
- * Hapus akun alumni beserta asset terkait.
- */
 export async function deleteAlumni(userId: string) {
   const admin = await requireAdmin();
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      alumniProfile: true,
-      posts: { include: { images: true } },
-      galleryPhotos: true,
-    },
-  });
+  const db = await getCloudflareDb();
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
   if (!user || user.role !== "ALUMNI") throw new Error("Alumni tidak ditemukan.");
 
-  const publicIds = [
-    user.alumniProfile?.profilePhotoPublicId,
-    ...user.posts.flatMap((post) => post.images.map((image) => image.imagePublicId)),
-    ...user.galleryPhotos.map((photo) => photo.imagePublicId),
+  const [profile] = await db.select().from(alumniProfiles).where(eq(alumniProfiles.userId, userId)).limit(1);
+  const userPosts = await db.select({ id: posts.id }).from(posts).where(eq(posts.userId, userId));
+  const postIds = userPosts.map((post) => post.id);
+  const postImageRows = postIds.length ? await db.select().from(postImages).where(inArray(postImages.postId, postIds)) : [];
+  const galleryRows = await db.select().from(galleryPhotos).where(eq(galleryPhotos.uploadedById, userId));
+
+  const imageKeys = [
+    profile?.profilePhotoKey,
+    ...postImageRows.map((image) => image.imageKey),
+    ...galleryRows.map((photo) => photo.imageKey),
   ].filter((value): value is string => Boolean(value));
 
-  await Promise.all(publicIds.map((publicId) => deleteFromCloudinary(publicId)));
-  await prisma.user.delete({ where: { id: userId } });
-  await writeAdminLog(admin.id, "DELETE_ALUMNI", "USER", userId, `Menghapus akun ${user.username}`);
+  await Promise.all(imageKeys.map((key) => deleteFromR2(key)));
+  await db.delete(users).where(eq(users.id, userId));
+  await writeAdminLog(db, admin.id, "DELETE_ALUMNI", "USER", userId, `Menghapus akun ${user.username}`);
   revalidatePath("/admin/alumni");
   redirect("/admin/alumni");
 }
 
-/**
- * Perbarui profil alumni dari panel admin.
- */
 export async function adminUpdateAlumni(userId: string, _state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
   const admin = await requireAdmin();
@@ -536,14 +506,15 @@ export async function adminUpdateAlumni(userId: string, _state: ActionState = em
     return { error: "Periksa kembali data alumni.", fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  await prisma.alumniProfile.update({
-    where: { userId },
-    data: {
+  const db = await getCloudflareDb();
+  await db
+    .update(alumniProfiles)
+    .set({
       fullName: parsed.data.fullName,
       highSchoolMajor: parsed.data.highSchoolMajor as HighSchoolMajor,
       collegeMajor: parsed.data.collegeMajor,
       birthPlace: parsed.data.birthPlace,
-      birthDate: new Date(parsed.data.birthDate),
+      birthDate: parsed.data.birthDate,
       email: optional(parsed.data.email ?? ""),
       phone: optional(parsed.data.phone ?? ""),
       address: optional(parsed.data.address ?? ""),
@@ -555,83 +526,78 @@ export async function adminUpdateAlumni(userId: string, _state: ActionState = em
       portfolioUrl: optional(parsed.data.portfolioUrl ?? ""),
       socialMedia: socialMediaJson(parsed.data.socialMedia ?? ""),
       bio: optional(parsed.data.bio ?? ""),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(alumniProfiles.userId, userId));
 
-  await writeAdminLog(admin.id, "UPDATE_ALUMNI", "USER", userId, "Memperbarui data alumni");
+  await writeAdminLog(db, admin.id, "UPDATE_ALUMNI", "USER", userId, "Memperbarui data alumni");
   revalidatePath(`/admin/alumni/${userId}`);
   revalidatePath("/admin/alumni");
   return { success: "Data alumni berhasil diperbarui." };
 }
 
-/**
- * Sembunyikan atau tampilkan postingan publik.
- */
 export async function togglePostVisibility(postId: string) {
   const admin = await requireAdmin();
-  const post = await prisma.post.findUnique({ where: { id: postId }, select: { isHidden: true } });
+  const db = await getCloudflareDb();
+  const [post] = await db.select({ isHidden: posts.isHidden }).from(posts).where(eq(posts.id, postId)).limit(1);
   if (!post) throw new Error("Postingan tidak ditemukan.");
 
-  await prisma.post.update({
-    where: { id: postId },
-    data: {
+  await db
+    .update(posts)
+    .set({
       isHidden: !post.isHidden,
       hiddenAt: post.isHidden ? null : new Date(),
       hiddenById: post.isHidden ? null : admin.id,
-    },
-  });
-  await writeAdminLog(admin.id, post.isHidden ? "SHOW_POST" : "HIDE_POST", "POST", postId, "Mengubah visibilitas postingan");
+      updatedAt: new Date(),
+    })
+    .where(eq(posts.id, postId));
+  await writeAdminLog(db, admin.id, post.isHidden ? "SHOW_POST" : "HIDE_POST", "POST", postId, "Mengubah visibilitas postingan");
   revalidatePath("/admin/postingan");
   revalidatePath("/postingan");
 }
 
-/**
- * Hapus postingan secara permanen dari panel admin.
- */
 export async function adminDeletePost(postId: string) {
   const admin = await requireAdmin();
-  const post = await prisma.post.findUnique({ where: { id: postId }, include: { images: true } });
+  const db = await getCloudflareDb();
+  const [post] = await db.select({ id: posts.id }).from(posts).where(eq(posts.id, postId)).limit(1);
   if (!post) throw new Error("Postingan tidak ditemukan.");
 
-  await Promise.all(post.images.map((image) => deleteFromCloudinary(image.imagePublicId)));
-  await prisma.post.delete({ where: { id: postId } });
-  await writeAdminLog(admin.id, "DELETE_POST", "POST", postId, "Menghapus postingan permanen");
+  const images = await db.select().from(postImages).where(eq(postImages.postId, postId));
+  await Promise.all(images.map((image) => deleteFromR2(image.imageKey)));
+  await db.delete(posts).where(eq(posts.id, postId));
+  await writeAdminLog(db, admin.id, "DELETE_POST", "POST", postId, "Menghapus postingan permanen");
   revalidatePath("/admin/postingan");
   revalidatePath("/postingan");
 }
 
-/**
- * Sembunyikan atau tampilkan foto galeri.
- */
 export async function toggleGalleryVisibility(photoId: string) {
   const admin = await requireAdmin();
-  const photo = await prisma.galleryPhoto.findUnique({ where: { id: photoId }, select: { isHidden: true } });
+  const db = await getCloudflareDb();
+  const [photo] = await db.select({ isHidden: galleryPhotos.isHidden }).from(galleryPhotos).where(eq(galleryPhotos.id, photoId)).limit(1);
   if (!photo) throw new Error("Foto galeri tidak ditemukan.");
 
-  await prisma.galleryPhoto.update({
-    where: { id: photoId },
-    data: {
+  await db
+    .update(galleryPhotos)
+    .set({
       isHidden: !photo.isHidden,
       hiddenAt: photo.isHidden ? null : new Date(),
       hiddenById: photo.isHidden ? null : admin.id,
-    },
-  });
-  await writeAdminLog(admin.id, photo.isHidden ? "SHOW_GALLERY" : "HIDE_GALLERY", "GALLERY", photoId, "Mengubah visibilitas foto galeri");
+    })
+    .where(eq(galleryPhotos.id, photoId));
+  await writeAdminLog(db, admin.id, photo.isHidden ? "SHOW_GALLERY" : "HIDE_GALLERY", "GALLERY", photoId, "Mengubah visibilitas foto galeri");
   revalidatePath("/admin/galeri");
   revalidatePath("/galeri");
 }
 
-/**
- * Hapus foto galeri secara permanen.
- */
 export async function adminDeleteGalleryPhoto(photoId: string) {
   const admin = await requireAdmin();
-  const photo = await prisma.galleryPhoto.findUnique({ where: { id: photoId } });
+  const db = await getCloudflareDb();
+  const [photo] = await db.select().from(galleryPhotos).where(eq(galleryPhotos.id, photoId)).limit(1);
   if (!photo) throw new Error("Foto galeri tidak ditemukan.");
 
-  await deleteFromCloudinary(photo.imagePublicId);
-  await prisma.galleryPhoto.delete({ where: { id: photoId } });
-  await writeAdminLog(admin.id, "DELETE_GALLERY", "GALLERY", photoId, "Menghapus foto galeri permanen");
+  await deleteFromR2(photo.imageKey);
+  await db.delete(galleryPhotos).where(eq(galleryPhotos.id, photoId));
+  await writeAdminLog(db, admin.id, "DELETE_GALLERY", "GALLERY", photoId, "Menghapus foto galeri permanen");
   revalidatePath("/admin/galeri");
   revalidatePath("/galeri");
 }

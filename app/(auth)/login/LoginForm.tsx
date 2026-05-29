@@ -44,7 +44,7 @@ export function LoginForm({ admin = false }: { admin?: boolean }) {
     });
 
     if (!result?.ok) {
-      setError(result?.error === "Akun dinonaktifkan" ? "Akun Anda telah dinonaktifkan" : "Username atau password salah");
+      setError(result?.error === "DISABLED" ? "Akun Anda telah dinonaktifkan" : "Username atau password salah");
       setLoading(false);
       return;
     }

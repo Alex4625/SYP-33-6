@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import type { Prisma } from "@prisma/client";
 
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getAdminLogs } from "@/lib/data";
 import { formatDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Audit Log",
@@ -26,25 +27,7 @@ export default async function AdminLogPage({ searchParams }: { searchParams: Pro
   const take = 50;
   const skip = (page - 1) * take;
 
-  const where: Prisma.AdminLogWhereInput = date
-    ? {
-        createdAt: {
-          gte: new Date(`${date}T00:00:00`),
-          lt: new Date(`${date}T23:59:59`),
-        },
-      }
-    : {};
-
-  const [logs, total] = await prisma.$transaction([
-    prisma.adminLog.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take,
-      include: { admin: true },
-    }),
-    prisma.adminLog.count({ where }),
-  ]);
+  const { logs, total } = await getAdminLogs({ date, limit: take, offset: skip });
 
   return (
     <div className="container py-8">

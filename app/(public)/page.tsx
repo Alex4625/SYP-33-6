@@ -8,47 +8,17 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { PostCard } from "@/components/shared/PostCard";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { buttonVariants } from "@/components/ui/button";
-import { prisma } from "@/lib/prisma";
+import { getHomeData } from "@/lib/data";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Beranda",
 };
 
 export default async function HomePage() {
-  const [totalAlumni, totalPosts, totalGallery, latestAlumni, latestPosts] = await Promise.all([
-    prisma.user.count({ where: { role: "ALUMNI", status: "APPROVED" } }),
-    prisma.post.count({ where: { isHidden: false } }),
-    prisma.galleryPhoto.count({ where: { isHidden: false } }),
-    prisma.alumniProfile.findMany({
-      where: { user: { role: "ALUMNI", status: "APPROVED" } },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      select: {
-        fullName: true,
-        highSchoolMajor: true,
-        collegeMajor: true,
-        domicileCity: true,
-        domicileProvince: true,
-        profilePhotoUrl: true,
-        user: { select: { username: true } },
-      },
-    }),
-    prisma.post.findMany({
-      where: { isHidden: false, author: { status: "APPROVED" } },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: {
-        images: { orderBy: { orderIndex: "asc" } },
-        author: {
-          select: {
-            username: true,
-            alumniProfile: { select: { fullName: true, profilePhotoUrl: true } },
-          },
-        },
-      },
-    }),
-  ]);
+  const { totalAlumni, totalPosts, totalGallery, latestAlumni, latestPosts } = await getHomeData();
 
   return (
     <>

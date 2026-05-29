@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
 import { PostCard } from "@/components/shared/PostCard";
-import { prisma } from "@/lib/prisma";
+import { countPublicPosts, getPostCards } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Postingan",
@@ -17,23 +19,9 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   const take = 10;
   const skip = (page - 1) * take;
 
-  const [posts, total] = await prisma.$transaction([
-    prisma.post.findMany({
-      where: { isHidden: false, author: { status: "APPROVED" } },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take,
-      include: {
-        images: { orderBy: { orderIndex: "asc" } },
-        author: {
-          select: {
-            username: true,
-            alumniProfile: { select: { fullName: true, profilePhotoUrl: true } },
-          },
-        },
-      },
-    }),
-    prisma.post.count({ where: { isHidden: false, author: { status: "APPROVED" } } }),
+  const [posts, total] = await Promise.all([
+    getPostCards({ limit: take, offset: skip, publicOnly: true }),
+    countPublicPosts(),
   ]);
 
   return (

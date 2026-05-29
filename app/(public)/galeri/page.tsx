@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GalleryGrid } from "@/components/shared/GalleryGrid";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
-import { prisma } from "@/lib/prisma";
+import { countGalleryPhotos, getGalleryPhotos } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Galeri Kenangan",
@@ -17,22 +19,9 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   const take = 20;
   const skip = (page - 1) * take;
 
-  const [photos, total] = await prisma.$transaction([
-    prisma.galleryPhoto.findMany({
-      where: { isHidden: false },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take,
-      include: {
-        uploadedBy: {
-          select: {
-            username: true,
-            alumniProfile: { select: { fullName: true } },
-          },
-        },
-      },
-    }),
-    prisma.galleryPhoto.count({ where: { isHidden: false } }),
+  const [photos, total] = await Promise.all([
+    getGalleryPhotos({ limit: take, offset: skip, publicOnly: true }),
+    countGalleryPhotos(true),
   ]);
 
   return (

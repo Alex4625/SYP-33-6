@@ -1,8 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { eq } from "drizzle-orm";
 
-import { prisma } from "@/lib/prisma";
+import { getCloudflareDb } from "@/db";
+import { users } from "@/db/schema";
 import { loginSchema } from "@/lib/validations";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -32,16 +34,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Username atau password salah");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { username: parsed.data.username },
-          select: {
-            id: true,
-            username: true,
-            passwordHash: true,
-            role: true,
-            status: true,
-          },
-        });
+        const db = await getCloudflareDb();
+        const [user] = await db
+          .select({
+            id: users.id,
+            username: users.username,
+            passwordHash: users.passwordHash,
+            role: users.role,
+            status: users.status,
+          })
+          .from(users)
+          .where(eq(users.username, parsed.data.username))
+          .limit(1);
 
         if (!user) {
           throw new Error("Username atau password salah");
@@ -54,7 +58,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         if (user.status === "DISABLED") {
-          throw new Error("Akun dinonaktifkan");
+          throw new Error("DISABLED");
         }
 
         return {

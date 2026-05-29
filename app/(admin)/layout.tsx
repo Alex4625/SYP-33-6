@@ -1,6 +1,9 @@
+import { and, count, eq } from "drizzle-orm";
+
+import { getCloudflareDb } from "@/db";
+import { users } from "@/db/schema";
 import { auth, signOut } from "@/lib/auth";
 import { AdminSidebar } from "@/components/shared/AdminSidebar";
-import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +19,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return <main className="min-h-screen bg-muted/35">{children}</main>;
   }
 
-  const pendingCount = await prisma.user.count({
-    where: { role: "ALUMNI", status: "PENDING" },
-  });
+  const db = await getCloudflareDb();
+  const [pending] = await db
+    .select({ value: count() })
+    .from(users)
+    .where(and(eq(users.role, "ALUMNI"), eq(users.status, "PENDING")));
+  const pendingCount = pending?.value ?? 0;
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">

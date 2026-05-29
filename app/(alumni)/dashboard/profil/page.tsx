@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { ProfileForm } from "@/app/(alumni)/dashboard/profil/ProfileForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getProfileByUserId } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Edit Profil",
@@ -12,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function ProfilePage() {
   const session = await auth();
-  const profile = await prisma.alumniProfile.findUnique({ where: { userId: session!.user.id } });
+  const profile = await getProfileByUserId(session!.user.id);
   if (!profile) notFound();
 
   return (

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { Prisma } from "@prisma/client";
 import { EyeIcon, PowerIcon, Trash2Icon } from "lucide-react";
 
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
@@ -9,9 +8,11 @@ import { buttonVariants, Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { deleteAlumni, toggleAlumniStatus } from "@/lib/actions";
+import { getAdminUsers } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Manajemen Alumni",
@@ -32,29 +33,7 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
   const take = 20;
   const skip = (page - 1) * take;
 
-  const where: Prisma.UserWhereInput = {
-    role: "ALUMNI",
-    ...(status ? { status: status as never } : {}),
-    ...(q
-      ? {
-          OR: [
-            { username: { contains: q } },
-            { alumniProfile: { fullName: { contains: q } } },
-          ],
-        }
-      : {}),
-  };
-
-  const [users, total] = await prisma.$transaction([
-    prisma.user.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take,
-      include: { alumniProfile: true },
-    }),
-    prisma.user.count({ where }),
-  ]);
+  const { users, total } = await getAdminUsers({ q, status, limit: take, offset: skip });
 
   return (
     <div className="container py-8">

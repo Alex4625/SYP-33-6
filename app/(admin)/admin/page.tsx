@@ -8,8 +8,10 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getAdminDashboardData } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dashboard Admin",
@@ -20,10 +22,7 @@ function monthKey(date: Date) {
 }
 
 export default async function AdminDashboardPage() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-
-  const [
+  const {
     total,
     pending,
     approved,
@@ -38,30 +37,8 @@ export default async function AdminDashboardPage() {
     originGroup,
     recentUsers,
     monthlyUsers,
-  ] = await Promise.all([
-    prisma.user.count({ where: { role: "ALUMNI" } }),
-    prisma.user.count({ where: { role: "ALUMNI", status: "PENDING" } }),
-    prisma.user.count({ where: { role: "ALUMNI", status: "APPROVED" } }),
-    prisma.user.count({ where: { role: "ALUMNI", status: "DISABLED" } }),
-    prisma.post.count({ where: { isHidden: false } }),
-    prisma.post.count({ where: { isHidden: true } }),
-    prisma.galleryPhoto.count({ where: { isHidden: false } }),
-    prisma.galleryPhoto.count({ where: { isHidden: true } }),
-    prisma.alumniProfile.groupBy({ by: ["highSchoolMajor"], _count: { _all: true } }),
-    prisma.alumniProfile.groupBy({ by: ["collegeMajor"], _count: { _all: true }, orderBy: { _count: { collegeMajor: "desc" } }, take: 10 }),
-    prisma.alumniProfile.groupBy({ by: ["domicileProvince"], where: { domicileProvince: { not: null } }, _count: { _all: true }, orderBy: { _count: { domicileProvince: "desc" } }, take: 10 }),
-    prisma.alumniProfile.groupBy({ by: ["originProvince"], where: { originProvince: { not: null } }, _count: { _all: true }, orderBy: { _count: { originProvince: "desc" } }, take: 10 }),
-    prisma.user.findMany({
-      where: { role: "ALUMNI" },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: { alumniProfile: true },
-    }),
-    prisma.user.findMany({
-      where: { role: "ALUMNI", createdAt: { gte: start } },
-      select: { createdAt: true },
-    }),
-  ]);
+    now,
+  } = await getAdminDashboardData();
 
   const months = Array.from({ length: 12 }, (_, index) => {
     const date = new Date(now.getFullYear(), now.getMonth() - (11 - index), 1);
@@ -88,10 +65,10 @@ export default async function AdminDashboardPage() {
       <div className="mt-6">
         <Suspense fallback={<Skeleton className="h-72 w-full" />}>
           <AdminCharts
-            majorData={majorGroup.map((item) => ({ name: item.highSchoolMajor, value: item._count._all }))}
-            collegeData={collegeGroup.map((item) => ({ name: item.collegeMajor, value: item._count._all }))}
-            domicileData={domicileGroup.map((item) => ({ name: item.domicileProvince ?? "-", value: item._count._all }))}
-            originData={originGroup.map((item) => ({ name: item.originProvince ?? "-", value: item._count._all }))}
+            majorData={majorGroup.map((item) => ({ name: item.name, value: item.value }))}
+            collegeData={collegeGroup.map((item) => ({ name: item.name, value: item.value }))}
+            domicileData={domicileGroup.map((item) => ({ name: item.name ?? "-", value: item.value }))}
+            originData={originGroup.map((item) => ({ name: item.name ?? "-", value: item.value }))}
             monthlyData={months}
           />
         </Suspense>

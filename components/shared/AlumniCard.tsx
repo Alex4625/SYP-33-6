@@ -5,8 +5,8 @@ import { MapPinIcon, UserRoundIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { HighSchoolMajor } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import type { HighSchoolMajor } from "@prisma/client";
 
 export type AlumniCardData = {
   fullName: string;

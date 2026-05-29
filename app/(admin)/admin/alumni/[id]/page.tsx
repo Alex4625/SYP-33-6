@@ -7,23 +7,22 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteAlumni, toggleAlumniStatus } from "@/lib/actions";
+import { getUserWithProfileById } from "@/lib/data";
 import { formatDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
 
 type Params = { id: string };
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;
-  const user = await prisma.user.findUnique({ where: { id }, include: { alumniProfile: true } });
+  const user = await getUserWithProfileById(id);
   return { title: user?.alumniProfile?.fullName ?? "Detail Alumni" };
 }
 
 export default async function AdminAlumniDetailPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
-  const user = await prisma.user.findUnique({
-    where: { id },
-    include: { alumniProfile: true },
-  });
+  const user = await getUserWithProfileById(id);
 
   if (!user || !user.alumniProfile || user.role !== "ALUMNI") notFound();
 

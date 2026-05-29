@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import type { Prisma } from "@prisma/client";
 import { EyeIcon, EyeOffIcon, ImagePlusIcon, Trash2Icon } from "lucide-react";
 
 import { buttonVariants, Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminDeleteGalleryPhoto, toggleGalleryVisibility } from "@/lib/actions";
+import { getAdminGallery } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Kelola Galeri",
@@ -27,17 +28,7 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
   const q = value(params, "q");
   const status = value(params, "status");
 
-  const where: Prisma.GalleryPhotoWhereInput = {
-    ...(status === "hidden" ? { isHidden: true } : {}),
-    ...(status === "public" ? { isHidden: false } : {}),
-    ...(q ? { uploadedBy: { alumniProfile: { fullName: { contains: q } } } } : {}),
-  };
-
-  const photos = await prisma.galleryPhoto.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { uploadedBy: { include: { alumniProfile: true } } },
-  });
+  const photos = await getAdminGallery({ q, status });
 
   return (
     <div className="container py-8">

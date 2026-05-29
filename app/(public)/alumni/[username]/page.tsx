@@ -8,84 +8,38 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PostCard } from "@/components/shared/PostCard";
+import { getPublicAlumniProfile } from "@/lib/data";
 import { formatDate } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
 
 type Params = { username: string };
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { username } = await params;
-  const alumni = await prisma.alumniProfile.findFirst({
-    where: { user: { username, status: "APPROVED" } },
-    select: { fullName: true },
-  });
+  const alumni = await getPublicAlumniProfile(username);
 
   return { title: alumni ? alumni.fullName : "Profil Alumni" };
 }
 
-export async function generateStaticParams() {
-  let alumni: { username: string }[] = [];
-
-  try {
-    alumni = await prisma.user.findMany({
-      where: { role: "ALUMNI", status: "APPROVED" },
-      take: 20,
-      select: { username: true },
-    });
-  } catch {
-    alumni = [];
-  }
-
-  return alumni.map((user) => ({ username: user.username }));
-}
-
 function socialLinks(value: unknown): { platform: string; url: string }[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is { platform: string; url: string } => {
+  let parsed = value;
+  if (typeof value === "string") {
+    try {
+      parsed = JSON.parse(value || "[]");
+    } catch {
+      parsed = [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter((item): item is { platform: string; url: string } => {
     return typeof item === "object" && item !== null && "platform" in item && "url" in item;
   });
 }
 
 export default async function AlumniProfilePage({ params }: { params: Promise<Params> }) {
   const { username } = await params;
-  const alumni = await prisma.alumniProfile.findFirst({
-    where: { user: { username, role: "ALUMNI", status: "APPROVED" } },
-    select: {
-      fullName: true,
-      highSchoolMajor: true,
-      collegeMajor: true,
-      birthPlace: true,
-      birthDate: true,
-      profilePhotoUrl: true,
-      domicileCity: true,
-      domicileProvince: true,
-      originCity: true,
-      originProvince: true,
-      linkedinUrl: true,
-      socialMedia: true,
-      portfolioUrl: true,
-      bio: true,
-      user: {
-        select: {
-          username: true,
-          posts: {
-            where: { isHidden: false },
-            orderBy: { createdAt: "desc" },
-            take: 6,
-            include: {
-              images: { orderBy: { orderIndex: "asc" } },
-              author: {
-                select: {
-                  username: true,
-                  alumniProfile: { select: { fullName: true, profilePhotoUrl: true } },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+  const alumni = await getPublicAlumniProfile(username);
 
   if (!alumni) notFound();
 

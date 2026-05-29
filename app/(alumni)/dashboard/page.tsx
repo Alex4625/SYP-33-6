@@ -7,8 +7,10 @@ import { PostCard } from "@/components/shared/PostCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPostCards, getProfileByUserId } from "@/lib/data";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Dashboard Alumni",
@@ -16,29 +18,10 @@ export const metadata: Metadata = {
 
 export default async function AlumniDashboardPage() {
   const session = await auth();
-  const profile = await prisma.alumniProfile.findUnique({
-    where: { userId: session!.user.id },
-    include: {
-      user: {
-        select: {
-          username: true,
-          posts: {
-            orderBy: { createdAt: "desc" },
-            take: 3,
-            include: {
-              images: { orderBy: { orderIndex: "asc" } },
-              author: {
-                select: {
-                  username: true,
-                  alumniProfile: { select: { fullName: true, profilePhotoUrl: true } },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+  const [profile, latestPosts] = await Promise.all([
+    getProfileByUserId(session!.user.id),
+    getPostCards({ limit: 3, userId: session!.user.id }),
+  ]);
 
   const quickLinks = [
     { href: "/dashboard/profil", label: "Edit Profil", icon: Edit3Icon },
@@ -73,9 +56,9 @@ export default async function AlumniDashboardPage() {
           <h2 className="text-2xl font-semibold">Postingan Terbaru Saya</h2>
           <Link href="/dashboard/postingan" className={cn(buttonVariants({ variant: "outline" }))}>Kelola</Link>
         </div>
-        {profile?.user.posts.length ? (
+        {latestPosts.length ? (
           <div className="grid gap-4 lg:grid-cols-3">
-            {profile.user.posts.map((post) => <PostCard key={post.id} post={post} compact />)}
+            {latestPosts.map((post) => <PostCard key={post.id} post={post} compact />)}
           </div>
         ) : (
           <EmptyState title="Belum ada postingan" description="Mulai bagikan cerita pertama Anda di komunitas alumni." />

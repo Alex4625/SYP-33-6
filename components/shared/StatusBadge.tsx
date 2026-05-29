@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
+import type { AccountStatus } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import type { AccountStatus } from "@prisma/client";
 
 const statusLabel: Record<AccountStatus, string> = {
   PENDING: "Menunggu",

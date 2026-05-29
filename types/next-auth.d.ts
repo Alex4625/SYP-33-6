@@ -1,4 +1,4 @@
-import type { AccountStatus, Role } from "@prisma/client";
+import type { AccountStatus, Role } from "@/db/schema";
 import type { DefaultSession } from "next-auth";
 import type { JWT as DefaultJWT } from "next-auth/jwt";
 

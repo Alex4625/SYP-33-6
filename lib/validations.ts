@@ -107,3 +107,20 @@ export const resetPasswordSchema = z
   });
 
 export type ActionFieldErrors = Record<string, string[] | undefined>;
+
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+export const MAX_PROFILE_PHOTO_SIZE = 2 * 1024 * 1024;
+export const MAX_POST_PHOTO_SIZE = 5 * 1024 * 1024;
+
+export function validateImageFile(file: File, maxSize = MAX_POST_PHOTO_SIZE) {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { valid: false, error: "Format file tidak didukung. Gunakan JPG, JPEG, PNG, atau WEBP." };
+  }
+
+  if (file.size > maxSize) {
+    const maxMb = maxSize / (1024 * 1024);
+    return { valid: false, error: `Ukuran file melebihi batas ${maxMb}MB. Pilih file yang lebih kecil.` };
+  }
+
+  return { valid: true };
+}

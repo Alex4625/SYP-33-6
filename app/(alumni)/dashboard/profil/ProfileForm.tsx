@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import type { AlumniProfile } from "@prisma/client";
 import { SaveIcon } from "lucide-react";
 
+import type { AlumniProfile } from "@/db/schema";
 import { FileUpload } from "@/components/shared/FileUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,13 +11,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile } from "@/lib/actions";
 
-function dateValue(date: Date) {
+function dateValue(date: Date | string) {
+  if (typeof date === "string") return date.slice(0, 10);
   return date.toISOString().slice(0, 10);
 }
 
 function socialValue(value: unknown) {
   if (!value) return "";
-  if (typeof value === "string") return value;
+  if (typeof value === "string") {
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2);
+    } catch {
+      return value;
+    }
+  }
   return JSON.stringify(value);
 }
 

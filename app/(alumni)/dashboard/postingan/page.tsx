@@ -9,9 +9,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { deleteOwnPost } from "@/lib/actions";
 import { auth } from "@/lib/auth";
+import { getPostCards } from "@/lib/data";
 import { formatShortDate, truncateText } from "@/lib/format";
-import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Postingan Saya",
@@ -19,11 +21,7 @@ export const metadata: Metadata = {
 
 export default async function MyPostsPage() {
   const session = await auth();
-  const posts = await prisma.post.findMany({
-    where: { userId: session!.user.id },
-    orderBy: { createdAt: "desc" },
-    include: { images: { orderBy: { orderIndex: "asc" }, take: 1 } },
-  });
+  const posts = await getPostCards({ limit: 100, userId: session!.user.id });
 
   return (
     <div className="container py-8">

@@ -4,7 +4,9 @@ import { Clock3Icon, LogOutIcon, XCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth, signOut } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getUserWithProfileById } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Status Akun",
@@ -12,12 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AccountStatusPage() {
   const session = await auth();
-  const user = session?.user
-    ? await prisma.user.findUnique({
-        where: { id: session.user.id },
-        include: { alumniProfile: true },
-      })
-    : null;
+  const user = session?.user ? await getUserWithProfileById(session.user.id) : null;
 
   async function signOutAction() {
     "use server";
