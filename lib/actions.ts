@@ -27,6 +27,7 @@ export type ActionState = {
   success?: string;
   error?: string;
   fieldErrors?: ActionFieldErrors;
+  values?: Record<string, string>;
 };
 
 const emptyState: ActionState = {};
@@ -116,6 +117,19 @@ function profileDataFromForm(formData: FormData) {
   };
 }
 
+function registerValuesFromForm(formData: FormData) {
+  return {
+    fullName: stringValue(formData, "fullName"),
+    username: stringValue(formData, "username"),
+    highSchoolMajor: stringValue(formData, "highSchoolMajor"),
+    collegeMajor: stringValue(formData, "collegeMajor"),
+    birthPlace: stringValue(formData, "birthPlace"),
+    birthDate: stringValue(formData, "birthDate"),
+    email: stringValue(formData, "email"),
+    phone: stringValue(formData, "phone"),
+  };
+}
+
 function socialMediaJson(value: string) {
   if (!value.trim()) return null;
 
@@ -128,28 +142,26 @@ function socialMediaJson(value: string) {
 
 export async function registerAlumni(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
   void _state;
+  const values = registerValuesFromForm(formData);
   const parsed = registerSchema.safeParse({
-    fullName: stringValue(formData, "fullName"),
-    username: stringValue(formData, "username"),
+    ...values,
     password: stringValue(formData, "password"),
     confirmPassword: stringValue(formData, "confirmPassword"),
-    highSchoolMajor: stringValue(formData, "highSchoolMajor"),
-    collegeMajor: stringValue(formData, "collegeMajor"),
-    birthPlace: stringValue(formData, "birthPlace"),
-    birthDate: stringValue(formData, "birthDate"),
-    email: stringValue(formData, "email"),
-    phone: stringValue(formData, "phone"),
   });
 
   if (!parsed.success) {
-    return { error: "Periksa kembali data registrasi.", fieldErrors: parsed.error.flatten().fieldErrors };
+    return { error: "Periksa kembali data registrasi.", fieldErrors: parsed.error.flatten().fieldErrors, values };
   }
 
   const db = await getCloudflareDb();
   const [existingUser] = await db.select({ id: users.id }).from(users).where(eq(users.username, parsed.data.username)).limit(1);
 
   if (existingUser) {
-    return { error: "Username sudah digunakan, silakan pilih yang lain", fieldErrors: { username: ["Username sudah digunakan"] } };
+    return {
+      error: "Username sudah digunakan, silakan pilih yang lain",
+      fieldErrors: { username: ["Username sudah digunakan"] },
+      values,
+    };
   }
 
   const userId = crypto.randomUUID();
@@ -179,7 +191,7 @@ export async function registerAlumni(_state: ActionState = emptyState, formData:
       });
     });
   } catch {
-    return { error: "Registrasi belum berhasil disimpan. Silakan coba lagi." };
+    return { error: "Registrasi belum berhasil disimpan. Silakan coba lagi.", values };
   }
 
   await signIn("credentials", {
