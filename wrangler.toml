@@ -1,0 +1,22 @@
+name = "syp-33-6"
+main = ".open-next/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "syp-33-6"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "syp336-db"
+# Ganti dengan database_id asli dari output: npx wrangler d1 create syp336-db
+database_id = "fa820cfb-b857-44c5-bdb9-cd2a3aef9247"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "syp336-storage"

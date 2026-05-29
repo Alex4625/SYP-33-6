@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Reset Password",
 };
 
-export default function ResetPasswordPage({ params }: { params: { token: string } }) {
-  return <ResetPasswordForm token={params.token} />;
+type Params = { token: string };
+
+export default async function ResetPasswordPage({ params }: { params: Promise<Params> }) {
+  const { token } = await params;
+  return <ResetPasswordForm token={token} />;
 }
