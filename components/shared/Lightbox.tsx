@@ -22,6 +22,18 @@ export function Lightbox({
       close={close}
       slides={slides}
       index={index}
+      carousel={{
+        imageFit: "contain",
+        imageProps: {
+          style: {
+            width: "100%",
+            height: "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+          },
+        },
+      }}
       controller={{ closeOnBackdropClick: true }}
       on={{ view: ({ index: nextIndex }) => setIndex(nextIndex) }}
     />
