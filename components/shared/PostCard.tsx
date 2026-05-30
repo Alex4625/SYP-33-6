@@ -6,7 +6,9 @@ import { ImagesIcon, UserRoundIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Lightbox } from "@/components/shared/Lightbox";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatShortDate, truncateText } from "@/lib/format";
 
 export type PostCardData = {
@@ -30,6 +32,7 @@ export type PostCardData = {
 export function PostCard({ post, compact = false }: { post: PostCardData; compact?: boolean }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [captionOpen, setCaptionOpen] = useState(false);
   const authorName = post.author.alumniProfile?.fullName ?? post.author.username;
   const profilePhoto = post.author.alumniProfile?.profilePhotoUrl;
   const images = useMemo(
@@ -92,9 +95,16 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
               ) : null}
             </button>
           ) : null}
-          <p className={compact ? "line-clamp-3 whitespace-pre-line p-3 text-sm leading-5" : "whitespace-pre-line p-4 text-sm leading-6"}>
-            {truncateText(post.caption, compact ? 180 : 300)}
-          </p>
+          <div className={compact ? "p-3" : "p-4"}>
+            <p className={compact ? "line-clamp-3 whitespace-pre-line text-sm leading-5" : "whitespace-pre-line text-sm leading-6"}>
+              {truncateText(post.caption, compact ? 180 : 300)}
+            </p>
+            {compact ? (
+              <Button type="button" variant="link" className="mt-1 h-auto p-0 text-xs" onClick={() => setCaptionOpen(true)}>
+                Baca selengkapnya
+              </Button>
+            ) : null}
+          </div>
         </CardContent>
       </Card>
       <Lightbox
@@ -104,6 +114,19 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
         index={lightboxIndex}
         setIndex={setLightboxIndex}
       />
+      <Dialog open={captionOpen} onOpenChange={setCaptionOpen}>
+        <DialogContent className="max-h-[calc(100vh-2rem)] sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Caption postingan</DialogTitle>
+            <DialogDescription>
+              {authorName} - {formatShortDate(post.createdAt)}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 text-sm leading-6 text-foreground">
+            {post.caption}
+          </p>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
