@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
 import { SaveIcon } from "lucide-react";
 
 import type { AlumniProfile } from "@/db/schema";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateProfile } from "@/lib/actions";
 
 function dateValue(date: Date | string) {
   if (typeof date === "string") return date.slice(0, 10);
@@ -29,12 +28,55 @@ function socialValue(value: unknown) {
 }
 
 export function ProfileForm({ profile }: { profile: AlumniProfile }) {
-  const [state, formAction, pending] = useActionState(updateProfile, {});
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    setPending(true);
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 90_000);
+
+    try {
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        body: new FormData(event.currentTarget),
+        signal: controller.signal,
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+        error?: string;
+        fieldErrors?: Record<string, string[] | undefined>;
+      };
+
+      if (!response.ok || !result.success) {
+        const firstFieldError = Object.values(result.fieldErrors ?? {}).flat().find(Boolean);
+        setError(firstFieldError ?? result.error ?? "Profil belum berhasil diperbarui. Silakan coba lagi.");
+        return;
+      }
+
+      setSuccess(result.message ?? "Profil berhasil diperbarui.");
+    } catch (error) {
+      setError(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "Penyimpanan terlalu lama. Coba kompres foto atau simpan ulang tanpa mengganti foto."
+          : "Profil belum berhasil diperbarui. Silakan coba lagi.",
+      );
+    } finally {
+      window.clearTimeout(timeoutId);
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="grid gap-4 md:grid-cols-2">
-      {state.success ? <p className="md:col-span-2 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{state.success}</p> : null}
-      {state.error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{state.error}</p> : null}
+    <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-2">
+      {success ? <p className="md:col-span-2 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{success}</p> : null}
+      {error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
       <div className="md:col-span-2">
         <Label>Foto profil</Label>
         <div className="mt-2">
