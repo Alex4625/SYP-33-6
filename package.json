@@ -9,6 +9,7 @@
     "pages:build": "npm run build",
     "preview": "npm run pages:build && wrangler dev",
     "deploy": "npm run pages:build && opennextjs-cloudflare deploy",
+    "deploy:pages-proxy": "wrangler pages deploy cloudflare-pages-proxy --project-name syp-33-6-alumni --branch main",
     "start": "next start",
     "lint": "eslint"
   },
