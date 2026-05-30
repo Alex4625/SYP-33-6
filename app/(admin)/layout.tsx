@@ -2,21 +2,15 @@ import { and, count, eq } from "drizzle-orm";
 
 import { getCloudflareDb } from "@/db";
 import { users } from "@/db/schema";
-import { auth, signOut } from "@/lib/auth";
+import { signOut } from "@/lib/auth";
 import { AdminSidebar } from "@/components/shared/AdminSidebar";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-
   async function signOutAction() {
     "use server";
     await signOut({ redirectTo: "/" });
-  }
-
-  if (!session || session.user.role !== "ADMIN") {
-    return <main className="min-h-screen bg-muted/35">{children}</main>;
   }
 
   const db = await getCloudflareDb();

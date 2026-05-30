@@ -51,6 +51,10 @@ export async function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  if (pathname === "/api/register") {
+    return NextResponse.next();
+  }
+
   const cookieName = getSessionCookieName(request);
   const token = await getToken({
     req: request,
@@ -101,5 +105,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: [
+    "/login",
+    "/daftar",
+    "/admin/:path*",
+    "/dashboard/:path*",
+    "/status-akun",
+    "/api/register",
+  ],
 };
