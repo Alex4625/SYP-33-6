@@ -16,7 +16,7 @@ type SearchParams = Record<string, string | string[] | undefined>;
 export default async function PostsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const page = Math.max(1, Number((Array.isArray(params.halaman) ? params.halaman[0] : params.halaman) ?? "1"));
-  const take = 10;
+  const take = 12;
   const skip = (page - 1) * take;
 
   const [posts, total] = await Promise.all([
@@ -25,14 +25,14 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   ]);
 
   return (
-    <div className="container max-w-3xl py-10">
+    <div className="container py-10">
       <div className="mb-6">
         <h1 className="text-3xl font-semibold">Postingan Alumni</h1>
         <p className="mt-2 text-muted-foreground">Kumpulan cerita dan kenangan yang dibagikan alumni.</p>
       </div>
       {posts.length > 0 ? (
-        <div className="grid gap-5">
-          {posts.map((post) => <PostCard key={post.id} post={post} />)}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {posts.map((post) => <PostCard key={post.id} post={post} compact />)}
         </div>
       ) : (
         <EmptyState title="Belum ada postingan" description="Postingan alumni akan tampil di halaman ini." />

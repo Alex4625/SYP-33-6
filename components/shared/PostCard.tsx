@@ -50,8 +50,8 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
     <>
       <Card className="overflow-hidden rounded-lg border-border/80 bg-card shadow-sm">
         <CardContent className="p-0">
-          <div className="flex items-center gap-3 p-4">
-            <div className="relative size-10 overflow-hidden rounded-lg bg-muted">
+          <div className={compact ? "flex items-center gap-2.5 p-3" : "flex items-center gap-3 p-4"}>
+            <div className={compact ? "relative size-9 overflow-hidden rounded-lg bg-muted" : "relative size-10 overflow-hidden rounded-lg bg-muted"}>
               {profilePhoto ? (
                 <Image src={profilePhoto} alt={authorName} fill className="object-cover" sizes="40px" />
               ) : (
@@ -74,25 +74,27 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
                 setLightboxIndex(0);
                 setLightboxOpen(true);
               }}
-              className="group relative block aspect-[4/3] w-full overflow-hidden bg-black/90 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="group relative block aspect-[4/3] w-full overflow-hidden bg-muted outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               aria-label={`Buka ${images.length === 1 ? "foto" : `${images.length} foto`} postingan ${authorName}`}
             >
               <Image
                 src={images[0].imageUrl}
                 alt="Foto utama postingan"
                 fill
-                className="object-contain transition duration-300 group-hover:scale-[1.02]"
-                sizes="(min-width: 768px) 768px, 100vw"
+                className="object-cover transition duration-300 group-hover:scale-105"
+                sizes={compact ? "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 768px) 768px, 100vw"}
               />
               {images.length > 1 ? (
-                <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1.5 text-xs font-medium text-white">
+                <span className="absolute right-2 top-2 flex items-center gap-1.5 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
                   <ImagesIcon className="size-4" aria-hidden="true" />
                   {images.length} foto
                 </span>
               ) : null}
             </button>
           ) : null}
-          <p className="whitespace-pre-line p-4 text-sm leading-6">{truncateText(post.caption, compact ? 180 : 300)}</p>
+          <p className={compact ? "line-clamp-3 whitespace-pre-line p-3 text-sm leading-5" : "whitespace-pre-line p-4 text-sm leading-6"}>
+            {truncateText(post.caption, compact ? 180 : 300)}
+          </p>
         </CardContent>
       </Card>
       <Lightbox
