@@ -145,7 +145,11 @@ export async function POST(request: Request) {
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/profil");
 
-    return NextResponse.json({ success: true, message: "Profil berhasil diperbarui." });
+    return NextResponse.json({
+      success: true,
+      message: "Profil berhasil diperbarui.",
+      profilePhotoUrl: imageUrl ?? profile.profilePhotoUrl,
+    });
   } catch (error) {
     if (imageKey) {
       await deleteFromR2(imageKey).catch(() => undefined);

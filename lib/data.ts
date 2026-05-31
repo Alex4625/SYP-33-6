@@ -230,6 +230,39 @@ export async function countPublicPosts() {
   return rows[0]?.value ?? 0;
 }
 
+export async function getOwnPostById(userId: string, postId: string) {
+  const db = await getCloudflareDb();
+  const [post] = await db
+    .select({
+      id: posts.id,
+      caption: posts.caption,
+      createdAt: posts.createdAt,
+    })
+    .from(posts)
+    .where(and(eq(posts.id, postId), eq(posts.userId, userId)))
+    .limit(1);
+
+  if (!post) return null;
+
+  const images = await db
+    .select({
+      id: postImages.id,
+      imageUrl: postImages.imageUrl,
+      orderIndex: postImages.orderIndex,
+    })
+    .from(postImages)
+    .where(eq(postImages.postId, postId))
+    .orderBy(asc(postImages.orderIndex));
+
+  return {
+    ...post,
+    images: images.map((image) => ({
+      ...image,
+      imageUrl: proxiedMediaUrl(image.imageUrl) ?? image.imageUrl,
+    })),
+  };
+}
+
 export async function getPublicAlumniProfile(username: string) {
   const db = await getCloudflareDb();
   const [row] = await db
@@ -308,6 +341,25 @@ export async function countGalleryPhotos(publicOnly = false) {
     .where(publicOnly ? eq(galleryPhotos.isHidden, false) : undefined);
 
   return rows[0]?.value ?? 0;
+}
+
+export async function getOwnGalleryPhotos(userId: string) {
+  const db = await getCloudflareDb();
+  const rows = await db
+    .select({
+      id: galleryPhotos.id,
+      imageUrl: galleryPhotos.imageUrl,
+      caption: galleryPhotos.caption,
+      createdAt: galleryPhotos.createdAt,
+    })
+    .from(galleryPhotos)
+    .where(eq(galleryPhotos.uploadedById, userId))
+    .orderBy(desc(galleryPhotos.createdAt));
+
+  return rows.map((photo) => ({
+    ...photo,
+    imageUrl: proxiedMediaUrl(photo.imageUrl) ?? photo.imageUrl,
+  }));
 }
 
 export async function getProfileByUserId(userId: string) {

@@ -38,7 +38,7 @@ export function GalleryUploadForm() {
         return;
       }
 
-      window.location.assign(result.redirectTo ?? "/dashboard");
+      window.location.assign(result.redirectTo ?? "/dashboard/galeri");
     } catch (error) {
       setError(
         error instanceof DOMException && error.name === "AbortError"

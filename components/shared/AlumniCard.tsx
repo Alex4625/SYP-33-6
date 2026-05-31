@@ -27,7 +27,7 @@ export function AlumniCard({ alumni }: { alumni: AlumniCardData }) {
     <Card className="overflow-hidden rounded-lg border-border/80 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+          <div className="relative size-16 shrink-0 overflow-hidden rounded-full border bg-muted">
             {alumni.profilePhotoUrl ? (
               <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="64px" />
             ) : (

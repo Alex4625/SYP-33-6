@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SaveIcon } from "lucide-react";
 
 import type { AlumniProfile } from "@/db/schema";
-import { FileUpload } from "@/components/shared/FileUpload";
+import { ProfilePhotoCropper } from "@/components/shared/ProfilePhotoCropper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pending, setPending] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,9 +43,12 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
     const timeoutId = window.setTimeout(() => controller.abort(), 90_000);
 
     try {
+      const formData = new FormData(event.currentTarget);
+      if (profilePhoto) formData.set("profilePhoto", profilePhoto);
+
       const response = await fetch("/api/profile", {
         method: "POST",
-        body: new FormData(event.currentTarget),
+        body: formData,
         signal: controller.signal,
       });
       const result = (await response.json().catch(() => ({}))) as {
@@ -61,6 +65,7 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
       }
 
       setSuccess(result.message ?? "Profil berhasil diperbarui.");
+      setProfilePhoto(null);
     } catch (error) {
       setError(
         error instanceof DOMException && error.name === "AbortError"
@@ -78,10 +83,7 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
       {success ? <p className="md:col-span-2 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{success}</p> : null}
       {error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
       <div className="md:col-span-2">
-        <Label>Foto profil</Label>
-        <div className="mt-2">
-          <FileUpload name="profilePhoto" label="Upload foto profil" maxSizeMb={2} />
-        </div>
+        <ProfilePhotoCropper currentPhotoUrl={profile.profilePhotoUrl} onChange={setProfilePhoto} />
       </div>
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="fullName">Nama lengkap</Label>

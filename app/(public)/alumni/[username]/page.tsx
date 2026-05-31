@@ -51,7 +51,7 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
     <div className="container py-10">
       <Card className="overflow-hidden rounded-lg">
         <CardContent className="grid gap-8 p-6 md:grid-cols-[220px_1fr]">
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+          <div className="relative aspect-square overflow-hidden rounded-full border bg-muted">
             {alumni.profilePhotoUrl ? (
               <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="220px" priority />
             ) : (

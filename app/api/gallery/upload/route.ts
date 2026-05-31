@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      redirectTo: session.user.role === "ADMIN" ? "/admin/galeri" : "/dashboard",
+      redirectTo: session.user.role === "ADMIN" ? "/admin/galeri" : "/dashboard/galeri",
     });
   } catch (error) {
     await deleteFromR2(imageKey).catch(() => undefined);

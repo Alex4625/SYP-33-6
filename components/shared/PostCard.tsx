@@ -54,7 +54,7 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
       <Card className="overflow-hidden rounded-lg border-border/80 bg-card shadow-sm">
         <CardContent className="p-0">
           <div className={compact ? "flex items-center gap-2.5 p-3" : "flex items-center gap-3 p-4"}>
-            <div className={compact ? "relative size-9 overflow-hidden rounded-lg bg-muted" : "relative size-10 overflow-hidden rounded-lg bg-muted"}>
+            <div className={compact ? "relative size-9 overflow-hidden rounded-full border bg-muted" : "relative size-10 overflow-hidden rounded-full border bg-muted"}>
               {profilePhoto ? (
                 <Image src={profilePhoto} alt={authorName} fill className="object-cover" sizes="40px" />
               ) : (

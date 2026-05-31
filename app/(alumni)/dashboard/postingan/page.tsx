@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { FileTextIcon, PlusIcon } from "lucide-react";
+import { FileTextIcon, PencilIcon, PlusIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -51,7 +51,11 @@ export default async function MyPostsPage() {
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground">{formatShortDate(post.createdAt)}</p>
                 <p className="mt-2 min-h-12 text-sm">{truncateText(post.caption, 120)}</p>
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link href={`/dashboard/postingan/${post.id}/edit`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                    <PencilIcon className="size-4" aria-hidden="true" />
+                    Edit
+                  </Link>
                   <ConfirmDialog
                     title="Hapus postingan?"
                     description="Postingan dan semua fotonya akan dihapus permanen."

@@ -8,18 +8,13 @@ import { redirect } from "next/navigation";
 import { getCloudflareDb, type Database } from "@/db";
 import { adminLogs, alumniProfiles, galleryPhotos, postImages, posts, users, type HighSchoolMajor } from "@/db/schema";
 import { auth, signIn } from "@/lib/auth";
-import { deleteFromR2, generateR2Key, uploadToR2 } from "@/lib/r2";
+import { deleteFromR2 } from "@/lib/r2";
 import { sendPasswordResetEmail } from "@/lib/resend";
 import { createAlumniRegistration } from "@/lib/registration";
 import {
-  MAX_POST_PHOTO_SIZE,
-  MAX_PROFILE_PHOTO_SIZE,
-  createPostSchema,
   editProfileSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  uploadGallerySchema,
-  validateImageFile,
   type ActionFieldErrors,
 } from "@/lib/validations";
 
@@ -40,22 +35,6 @@ function stringValue(formData: FormData, key: string) {
 function optional(value: string) {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
-}
-
-function readFile(formData: FormData, key: string) {
-  const file = formData.get(key);
-  if (file instanceof File && file.size > 0) return file;
-  return null;
-}
-
-function readFiles(formData: FormData, key: string) {
-  return formData.getAll(key).filter((file): file is File => file instanceof File && file.size > 0);
-}
-
-async function uploadImage(file: File, folder: string) {
-  const key = generateR2Key(folder, file.name);
-  const imageUrl = await uploadToR2(await file.arrayBuffer(), key, file.type);
-  return { imageUrl, imageKey: key };
 }
 
 async function requireAlumni() {
@@ -225,123 +204,6 @@ export async function resetPassword(token: string, _state: ActionState = emptySt
   redirect("/login?reset=success");
 }
 
-export async function updateProfile(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
-  void _state;
-  const user = await requireAlumni();
-  const parsed = editProfileSchema.safeParse(profileDataFromForm(formData));
-
-  if (!parsed.success) {
-    return { error: "Periksa kembali data profil.", fieldErrors: parsed.error.flatten().fieldErrors };
-  }
-
-  const db = await getCloudflareDb();
-  const [profile] = await db.select().from(alumniProfiles).where(eq(alumniProfiles.userId, user.id)).limit(1);
-
-  if (!profile) {
-    return { error: "Profil tidak ditemukan." };
-  }
-
-  const photo = readFile(formData, "profilePhoto");
-  let uploadedPhoto: { imageUrl: string; imageKey: string } | null = null;
-
-  if (photo) {
-    const validation = validateImageFile(photo, MAX_PROFILE_PHOTO_SIZE);
-    if (!validation.valid) return { error: validation.error };
-    uploadedPhoto = await uploadImage(photo, "profiles");
-  }
-
-  await db
-    .update(alumniProfiles)
-    .set({
-      fullName: parsed.data.fullName,
-      highSchoolMajor: parsed.data.highSchoolMajor,
-      collegeMajor: parsed.data.collegeMajor,
-      birthPlace: parsed.data.birthPlace,
-      birthDate: parsed.data.birthDate,
-      email: optional(parsed.data.email ?? ""),
-      phone: optional(parsed.data.phone ?? ""),
-      address: optional(parsed.data.address ?? ""),
-      domicileCity: optional(parsed.data.domicileCity ?? ""),
-      domicileProvince: optional(parsed.data.domicileProvince ?? ""),
-      originCity: optional(parsed.data.originCity ?? ""),
-      originProvince: optional(parsed.data.originProvince ?? ""),
-      linkedinUrl: optional(parsed.data.linkedinUrl ?? ""),
-      portfolioUrl: optional(parsed.data.portfolioUrl ?? ""),
-      socialMedia: socialMediaJson(parsed.data.socialMedia ?? ""),
-      bio: optional(parsed.data.bio ?? ""),
-      updatedAt: new Date(),
-      ...(uploadedPhoto
-        ? {
-            profilePhotoUrl: uploadedPhoto.imageUrl,
-            profilePhotoKey: uploadedPhoto.imageKey,
-          }
-        : {}),
-    })
-    .where(eq(alumniProfiles.userId, user.id));
-
-  if (uploadedPhoto && profile.profilePhotoKey) {
-    await deleteFromR2(profile.profilePhotoKey);
-  }
-
-  revalidatePath("/dashboard/profil");
-  revalidatePath(`/alumni/${user.username ?? ""}`);
-  return { success: "Profil berhasil diperbarui." };
-}
-
-export async function createPost(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
-  void _state;
-  const user = await requireAlumni();
-  const parsed = createPostSchema.safeParse({ caption: stringValue(formData, "caption") });
-
-  if (!parsed.success) {
-    return { error: "Caption wajib diisi.", fieldErrors: parsed.error.flatten().fieldErrors };
-  }
-
-  const files = readFiles(formData, "images");
-  if (files.length > 4) return { error: "Maksimal 4 foto per postingan." };
-
-  for (const file of files) {
-    const validation = validateImageFile(file, MAX_POST_PHOTO_SIZE);
-    if (!validation.valid) return { error: validation.error };
-  }
-
-  const db = await getCloudflareDb();
-  const uploaded: { imageUrl: string; imageKey: string }[] = [];
-  const postId = crypto.randomUUID();
-
-  try {
-    for (const file of files) {
-      uploaded.push(await uploadImage(file, "posts"));
-    }
-
-    await db.insert(posts).values({
-      id: postId,
-      userId: user.id,
-      caption: parsed.data.caption,
-    });
-
-    if (uploaded.length > 0) {
-      await db.insert(postImages).values(
-        uploaded.map((image, index) => ({
-          id: crypto.randomUUID(),
-          postId,
-          imageUrl: image.imageUrl,
-          imageKey: image.imageKey,
-          orderIndex: index,
-        })),
-      );
-    }
-  } catch (error) {
-    await Promise.all(uploaded.map((image) => deleteFromR2(image.imageKey)));
-    await db.delete(posts).where(eq(posts.id, postId));
-    throw error;
-  }
-
-  revalidatePath("/");
-  revalidatePath("/postingan");
-  redirect("/dashboard/postingan");
-}
-
 export async function deleteOwnPost(postId: string) {
   const user = await requireAlumni();
   const db = await getCloudflareDb();
@@ -352,47 +214,29 @@ export async function deleteOwnPost(postId: string) {
   const images = await db.select().from(postImages).where(eq(postImages.postId, postId));
   await Promise.all(images.map((image) => deleteFromR2(image.imageKey)));
   await db.delete(posts).where(eq(posts.id, postId));
+  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/postingan");
   revalidatePath("/postingan");
+  revalidatePath(`/alumni/${user.username ?? ""}`);
 }
 
-export async function uploadGalleryPhoto(_state: ActionState = emptyState, formData: FormData): Promise<ActionState> {
-  void _state;
-  const session = await auth();
-  const canUpload =
-    session?.user.role === "ADMIN" ||
-    (session?.user.role === "ALUMNI" && session.user.status === "APPROVED");
-
-  if (!session || !canUpload) {
-    throw new Error("Anda tidak memiliki akses ke halaman ini");
-  }
-
-  const parsed = uploadGallerySchema.safeParse({ caption: stringValue(formData, "caption") });
-  if (!parsed.success) return { error: "Keterangan tidak valid.", fieldErrors: parsed.error.flatten().fieldErrors };
-
-  const file = readFile(formData, "image");
-  if (!file) return { error: "Foto wajib dipilih." };
-
-  const validation = validateImageFile(file, MAX_POST_PHOTO_SIZE);
-  if (!validation.valid) return { error: validation.error };
-
+export async function deleteOwnGalleryPhoto(photoId: string) {
+  const user = await requireAlumni();
   const db = await getCloudflareDb();
-  const uploaded = await uploadImage(file, "gallery");
-  const photoId = crypto.randomUUID();
-  await db.insert(galleryPhotos).values({
-    id: photoId,
-    uploadedById: session.user.id,
-    imageUrl: uploaded.imageUrl,
-    imageKey: uploaded.imageKey,
-    caption: optional(parsed.data.caption ?? ""),
-  });
+  const [photo] = await db
+    .select()
+    .from(galleryPhotos)
+    .where(and(eq(galleryPhotos.id, photoId), eq(galleryPhotos.uploadedById, user.id)))
+    .limit(1);
 
+  if (!photo) throw new Error("Foto galeri tidak ditemukan.");
+
+  await deleteFromR2(photo.imageKey);
+  await db.delete(galleryPhotos).where(eq(galleryPhotos.id, photoId));
+  revalidatePath("/");
+  revalidatePath("/dashboard/galeri");
   revalidatePath("/galeri");
-  if (session.user.role === "ADMIN") {
-    await writeAdminLog(db, session.user.id, "UPLOAD_GALLERY", "GALLERY", photoId, "Mengunggah foto galeri");
-    revalidatePath("/admin/galeri");
-  }
-  redirect(session.user.role === "ADMIN" ? "/admin/galeri" : "/dashboard");
 }
 
 export async function approveAlumni(userId: string) {

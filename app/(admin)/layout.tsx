@@ -3,7 +3,7 @@ import { and, count, eq } from "drizzle-orm";
 import { getCloudflareDb } from "@/db";
 import { users } from "@/db/schema";
 import { signOut } from "@/lib/auth";
-import { AdminSidebar } from "@/components/shared/AdminSidebar";
+import { DashboardNavbar } from "@/components/shared/DashboardNavbar";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +21,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const pendingCount = pending?.value ?? 0;
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">
-      <div className="hidden lg:block">
-        <AdminSidebar pendingCount={pendingCount} signOutAction={signOutAction} />
-      </div>
-      <main className="min-w-0 bg-muted/30">
-        <div className="border-b bg-background p-3 lg:hidden">
-          <AdminSidebar pendingCount={pendingCount} signOutAction={signOutAction} />
-        </div>
+    <div className="min-h-screen bg-muted/30">
+      <DashboardNavbar role="ADMIN" pendingCount={pendingCount} signOutAction={signOutAction} />
+      <main className="min-w-0">
         {children}
       </main>
     </div>

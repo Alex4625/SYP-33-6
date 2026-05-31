@@ -26,7 +26,7 @@ export default async function AlumniDashboardPage() {
   const quickLinks = [
     { href: "/dashboard/profil", label: "Edit Profil", icon: Edit3Icon },
     { href: "/dashboard/postingan/baru", label: "Buat Postingan", icon: FilePlus2Icon },
-    { href: "/dashboard/galeri/upload", label: "Upload Galeri", icon: ImagePlusIcon },
+    { href: "/dashboard/galeri", label: "Kelola Galeri", icon: ImagePlusIcon },
     { href: "/dashboard/direktori", label: "Direktori Alumni", icon: UsersRoundIcon },
   ];
 
