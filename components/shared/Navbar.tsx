@@ -38,10 +38,10 @@ export function Navbar({
 
   const authActions = viewer ? (
     <>
-      <Link href={dashboardHref} prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>
+      <a href={dashboardHref} className={cn(buttonVariants({ variant: "outline" }))}>
         <LayoutDashboardIcon className="size-4" aria-hidden="true" />
         {dashboardLabel}
-      </Link>
+      </a>
       {signOutAction ? (
         <form action={signOutAction}>
           <Button type="submit" variant="ghost">
@@ -96,15 +96,14 @@ export function Navbar({
             <div className={cn("mt-2 grid gap-2", viewer ? "grid-cols-1" : "grid-cols-2")}>
               {viewer ? (
                 <>
-                  <Link
+                  <a
                     href={dashboardHref}
-                    prefetch={false}
                     className={cn(buttonVariants({ variant: "outline" }))}
                     onClick={() => setOpen(false)}
                   >
                     <LayoutDashboardIcon className="size-4" aria-hidden="true" />
                     {dashboardLabel}
-                  </Link>
+                  </a>
                   {signOutAction ? (
                     <form action={signOutAction}>
                       <Button type="submit" variant="ghost" className="w-full">
