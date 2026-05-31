@@ -27,13 +27,9 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
   const q = param(params, "q");
   const jurusan = param(params, "jurusan");
   const prodi = param(params, "prodi");
-  const domisili = param(params, "domisili");
-  const domicileCity = param(params, "domicileCity");
-  const domicileProvince = param(params, "domicileProvince");
-  const originCity = param(params, "originCity");
-  const originProvince = param(params, "originProvince");
 
-  const filters = { q, jurusan, prodi, domisili, domicileCity, domicileProvince, originCity, originProvince };
+  const filters = { q, jurusan, prodi };
+  const filterParams = { q: q || undefined, jurusan: jurusan || undefined, prodi: prodi || undefined };
   const [alumni, total] = await Promise.all([
     getAlumniCards(filters, take, skip),
     countAlumniCards(filters),
@@ -45,9 +41,9 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
     <div className="container py-10">
       <div className="mb-6">
         <h1 className="text-3xl font-semibold">Direktori Alumni</h1>
-        <p className="mt-2 text-muted-foreground">Cari alumni berdasarkan nama, jurusan, program studi, domisili, atau asal daerah.</p>
+        <p className="mt-2 text-muted-foreground">Cari alumni berdasarkan nama, jurusan, atau program studi.</p>
       </div>
-      <FilterBar searchParams={params} />
+      <FilterBar searchParams={filterParams} />
       {alumni.length > 0 ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {alumni.map((item) => <AlumniCard key={item.user.username} alumni={item} />)}
@@ -55,7 +51,7 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
       ) : (
         <EmptyState className="mt-6" title="Alumni tidak ditemukan" description="Coba ubah kata kunci atau filter pencarian." />
       )}
-      <PaginationLinks basePath="/alumni" currentPage={page} totalPages={totalPages} searchParams={params} />
+      <PaginationLinks basePath="/alumni" currentPage={page} totalPages={totalPages} searchParams={filterParams} />
     </div>
   );
 }

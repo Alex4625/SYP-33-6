@@ -17,11 +17,6 @@ type AlumniFilters = {
   q?: string;
   jurusan?: string;
   prodi?: string;
-  domisili?: string;
-  domicileCity?: string;
-  domicileProvince?: string;
-  originCity?: string;
-  originProvince?: string;
 };
 
 type AdminUserFilters = {
@@ -110,18 +105,6 @@ function alumniWhere(filters: AlumniFilters) {
       ? eq(alumniProfiles.highSchoolMajor, filters.jurusan)
       : undefined,
     filters.prodi ? like(alumniProfiles.collegeMajor, contains(filters.prodi)) : undefined,
-    filters.domisili
-      ? or(
-          like(alumniProfiles.domicileCity, contains(filters.domisili)),
-          like(alumniProfiles.domicileProvince, contains(filters.domisili)),
-          like(alumniProfiles.originCity, contains(filters.domisili)),
-          like(alumniProfiles.originProvince, contains(filters.domisili)),
-        )
-      : undefined,
-    filters.domicileCity ? like(alumniProfiles.domicileCity, contains(filters.domicileCity)) : undefined,
-    filters.domicileProvince ? like(alumniProfiles.domicileProvince, contains(filters.domicileProvince)) : undefined,
-    filters.originCity ? like(alumniProfiles.originCity, contains(filters.originCity)) : undefined,
-    filters.originProvince ? like(alumniProfiles.originProvince, contains(filters.originProvince)) : undefined,
   ]);
 
   return and(...conditions);

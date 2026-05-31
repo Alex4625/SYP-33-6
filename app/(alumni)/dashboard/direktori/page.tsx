@@ -28,11 +28,11 @@ export default async function DashboardDirectoryPage({ searchParams }: { searchP
     q: param(params, "q"),
     jurusan: param(params, "jurusan"),
     prodi: param(params, "prodi"),
-    domisili: param(params, "domisili"),
-    domicileCity: param(params, "domicileCity"),
-    domicileProvince: param(params, "domicileProvince"),
-    originCity: param(params, "originCity"),
-    originProvince: param(params, "originProvince"),
+  };
+  const filterParams = {
+    q: filters.q || undefined,
+    jurusan: filters.jurusan || undefined,
+    prodi: filters.prodi || undefined,
   };
 
   const [alumni, total] = await Promise.all([
@@ -49,7 +49,7 @@ export default async function DashboardDirectoryPage({ searchParams }: { searchP
           Cari alumni tanpa meninggalkan area dashboard.
         </p>
       </div>
-      <FilterBar action="/dashboard/direktori" searchParams={params} />
+      <FilterBar action="/dashboard/direktori" searchParams={filterParams} />
       {alumni.length > 0 ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {alumni.map((item) => <AlumniCard key={item.user.username} alumni={item} />)}
@@ -57,7 +57,7 @@ export default async function DashboardDirectoryPage({ searchParams }: { searchP
       ) : (
         <EmptyState className="mt-6" title="Alumni tidak ditemukan" description="Coba ubah kata kunci atau filter pencarian." />
       )}
-      <PaginationLinks basePath="/dashboard/direktori" currentPage={page} totalPages={totalPages} searchParams={params} />
+      <PaginationLinks basePath="/dashboard/direktori" currentPage={page} totalPages={totalPages} searchParams={filterParams} />
     </div>
   );
 }
