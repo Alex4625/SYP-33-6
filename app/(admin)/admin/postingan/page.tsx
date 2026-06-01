@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
+import { AdminPostCaption } from "@/components/shared/AdminPostCaption";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { adminDeletePost, togglePostVisibility } from "@/lib/actions";
 import { getAdminPosts } from "@/lib/data";
-import { formatShortDate, truncateText } from "@/lib/format";
+import { formatShortDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -44,47 +45,51 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
         <Button type="submit">Filter</Button>
       </form>
       <div className="overflow-hidden rounded-lg border bg-card">
-        <Table>
+        <Table className="min-w-[1080px] table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Pembuat</TableHead>
-              <TableHead>Caption</TableHead>
-              <TableHead>Foto</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Tanggal</TableHead>
-              <TableHead>Aksi</TableHead>
+              <TableHead className="w-60">Pembuat</TableHead>
+              <TableHead className="w-80">Caption</TableHead>
+              <TableHead className="w-16">Foto</TableHead>
+              <TableHead className="w-32">Status</TableHead>
+              <TableHead className="w-32">Tanggal</TableHead>
+              <TableHead className="w-72">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {posts.map((post) => (
               <TableRow key={post.id}>
-                <TableCell>{post.author.alumniProfile?.fullName ?? post.author.username}</TableCell>
-                <TableCell className="max-w-xs">{truncateText(post.caption, 120)}</TableCell>
+                <TableCell className="truncate">{post.author.alumniProfile?.fullName ?? post.author.username}</TableCell>
+                <TableCell className="whitespace-normal">
+                  <AdminPostCaption caption={post.caption} />
+                </TableCell>
                 <TableCell>{post.images.length}</TableCell>
                 <TableCell>{post.isHidden ? <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-700">Disembunyikan</span> : <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs text-emerald-700">Publik</span>}</TableCell>
                 <TableCell>{formatShortDate(post.createdAt)}</TableCell>
-                <TableCell className="flex flex-wrap gap-2">
-                  <ConfirmDialog
-                    title={post.isHidden ? "Tampilkan postingan?" : "Sembunyikan postingan?"}
-                    description={
-                      post.isHidden
-                        ? "Postingan akan kembali tampil di feed publik."
-                        : "Postingan akan disembunyikan dari feed publik."
-                    }
-                    action={togglePostVisibility.bind(null, post.id)}
-                    actionLabel={post.isHidden ? "Tampilkan" : "Sembunyikan"}
-                    variant="warning"
-                    triggerIcon={post.isHidden ? "eye" : "eye-off"}
-                  >
-                    {post.isHidden ? "Tampilkan" : "Sembunyikan"}
-                  </ConfirmDialog>
-                  <ConfirmDialog
-                    title="Hapus postingan?"
-                    description="Postingan dan semua fotonya akan dihapus permanen."
-                    action={adminDeletePost.bind(null, post.id)}
-                    actionLabel="Hapus"
-                    triggerIcon="trash"
-                  />
+                <TableCell>
+                  <div className="flex flex-wrap gap-2">
+                    <ConfirmDialog
+                      title={post.isHidden ? "Tampilkan postingan?" : "Sembunyikan postingan?"}
+                      description={
+                        post.isHidden
+                          ? "Postingan akan kembali tampil di feed publik."
+                          : "Postingan akan disembunyikan dari feed publik."
+                      }
+                      action={togglePostVisibility.bind(null, post.id)}
+                      actionLabel={post.isHidden ? "Tampilkan" : "Sembunyikan"}
+                      variant="warning"
+                      triggerIcon={post.isHidden ? "eye" : "eye-off"}
+                    >
+                      {post.isHidden ? "Tampilkan" : "Sembunyikan"}
+                    </ConfirmDialog>
+                    <ConfirmDialog
+                      title="Hapus postingan?"
+                      description="Postingan dan semua fotonya akan dihapus permanen."
+                      action={adminDeletePost.bind(null, post.id)}
+                      actionLabel="Hapus"
+                      triggerIcon="trash"
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
