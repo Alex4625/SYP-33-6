@@ -89,6 +89,15 @@ export default async function PublicLayout({ children }: { children: React.React
                 <InstagramLogo className="size-4" />
                 <span>6</span>
               </a>
+              <a
+                href="https://www.instagram.com/osissmaksemyopal2?igsh=MTlhd28ycjNoNDQyNw=="
+                target="_blank"
+                rel="noreferrer"
+                className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
+              >
+                <InstagramLogo className="size-4" />
+                <span>Almamater</span>
+              </a>
             </nav>
           </div>
         </div>
