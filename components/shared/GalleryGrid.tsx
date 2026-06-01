@@ -43,12 +43,12 @@ export function GalleryGrid({ photos }: { photos: GalleryPhotoData[] }) {
               setIndex(photoIndex);
               setOpen(true);
             }}
-            className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-muted text-left outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="group relative aspect-[4/3] overflow-hidden border border-black bg-muted text-left outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:border-border"
           >
-            <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover transition duration-300 group-hover:scale-105" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white opacity-0 transition group-hover:opacity-100">
-              <span className="line-clamp-1 text-sm font-medium">{photo.caption ?? "Kenangan SYP-33-6"}</span>
-              <span className="line-clamp-1 text-xs text-white/80">{photo.uploadedBy.alumniProfile?.fullName ?? photo.uploadedBy.username}</span>
+            <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
+            <span className="absolute inset-x-0 bottom-0 border-t border-black bg-background p-2 text-foreground dark:border-border">
+              <span className="line-clamp-1 font-sans text-xs font-bold uppercase">{photo.caption ?? "Kenangan SYP-33-6"}</span>
+              <span className="line-clamp-1 text-xs text-muted-foreground">{photo.uploadedBy.alumniProfile?.fullName ?? photo.uploadedBy.username}</span>
             </span>
           </button>
         ))}

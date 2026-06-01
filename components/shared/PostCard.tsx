@@ -51,10 +51,10 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
 
   return (
     <>
-      <Card className="overflow-hidden rounded-lg border-border/80 bg-card shadow-sm">
+      <Card className="overflow-hidden border-black bg-card dark:border-border">
         <CardContent className="p-0">
           <div className={compact ? "flex items-center gap-2.5 p-3" : "flex items-center gap-3 p-4"}>
-            <div className={compact ? "relative size-9 overflow-hidden rounded-full border bg-muted" : "relative size-10 overflow-hidden rounded-full border bg-muted"}>
+            <div className={compact ? "relative size-9 overflow-hidden border border-black bg-muted dark:border-border" : "relative size-10 overflow-hidden border border-black bg-muted dark:border-border"}>
               {profilePhoto ? (
                 <Image src={profilePhoto} alt={authorName} fill className="object-cover" sizes="40px" />
               ) : (
@@ -84,11 +84,11 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
                 src={images[0].imageUrl}
                 alt="Foto utama postingan"
                 fill
-                className="object-cover transition duration-300 group-hover:scale-105"
+                className="object-cover"
                 sizes={compact ? "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 768px) 768px, 100vw"}
               />
               {images.length > 1 ? (
-                <span className="absolute right-2 top-2 flex items-center gap-1.5 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
+                <span className="catalog-bevel absolute right-2 top-2 flex items-center gap-1.5 border border-black bg-accent px-2 py-1 font-sans text-xs font-bold uppercase text-black">
                   <ImagesIcon className="size-4" aria-hidden="true" />
                   {images.length} foto
                 </span>

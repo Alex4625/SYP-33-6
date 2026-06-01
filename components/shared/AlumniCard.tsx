@@ -24,10 +24,10 @@ export function AlumniCard({ alumni }: { alumni: AlumniCardData }) {
   const domicile = [alumni.domicileCity, alumni.domicileProvince].filter(Boolean).join(", ");
 
   return (
-    <Card className="overflow-hidden rounded-lg border-border/80 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <Card className="overflow-hidden border-black bg-card dark:border-border">
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-full border bg-muted">
+          <div className="catalog-bevel relative size-16 shrink-0 overflow-hidden border border-black bg-muted dark:border-border">
             {alumni.profilePhotoUrl ? (
               <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="64px" />
             ) : (

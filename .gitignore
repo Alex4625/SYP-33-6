@@ -46,6 +46,8 @@ next-env.d.ts
 .dev.vars
 .wrangler/
 
-.AGENTS.MD
-.CLAUDE.MD
-.PRD.MD
+# internal project instructions
+AGENTS.md
+CLAUDE.md
+PRD.md
+DESIGN.md

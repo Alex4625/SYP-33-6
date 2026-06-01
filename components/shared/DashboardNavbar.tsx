@@ -70,8 +70,8 @@ function NavLink({
 }) {
   const Icon = item.icon;
   const className = cn(
-    "flex items-center gap-1.5 rounded-md px-2 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
-    isActive(pathname, item.href) && "bg-muted font-medium text-foreground",
+    "flex items-center gap-1.5 px-2 py-2 font-sans text-xs font-bold uppercase text-white transition-colors hover:bg-white hover:text-black",
+    isActive(pathname, item.href) && "bg-accent text-black",
     mobile && "w-full px-3",
   );
   const content = (
@@ -113,10 +113,10 @@ export function DashboardNavbar({
   const homeHref = role === "ADMIN" ? "/admin" : "/dashboard";
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="container flex min-h-16 items-center gap-3">
-        <Link href={homeHref} prefetch={false} className="mr-auto flex shrink-0 items-center gap-2 font-semibold">
-          <span className="rounded-md bg-primary p-2 text-primary-foreground">
+    <header className="sticky top-0 z-40 border-b border-white bg-black text-white">
+      <div className="container flex min-h-16 items-center gap-3 py-2">
+        <Link href={homeHref} prefetch={false} className="mr-auto flex shrink-0 items-center gap-2 font-sans text-sm font-bold uppercase">
+          <span className="catalog-bevel bg-accent p-2 text-black">
             <UsersRoundIcon className="size-4" aria-hidden="true" />
           </span>
           <span className="hidden sm:inline">{role === "ADMIN" ? "Panel Admin" : "Alumni SYP-33-6"}</span>
@@ -155,7 +155,7 @@ export function DashboardNavbar({
       </div>
 
       {open ? (
-        <div className="border-t bg-background xl:hidden">
+        <div className="border-t border-white bg-black xl:hidden">
           <nav className="container grid gap-1 py-3">
             {items.map((item) => (
               <NavLink key={item.href} item={item} pathname={pathname} mobile onNavigate={() => setOpen(false)} />
@@ -164,7 +164,7 @@ export function DashboardNavbar({
               href="/"
               prefetch={false}
               onClick={() => setOpen(false)}
-              className="mt-2 flex w-full items-center gap-1.5 rounded-md border px-3 py-2 text-sm transition hover:bg-muted hover:text-foreground"
+              className="mt-2 flex w-full items-center gap-1.5 border border-white px-3 py-3 font-sans text-xs font-bold uppercase text-white transition-colors hover:bg-white hover:text-black"
             >
               <Globe2Icon className="size-4" aria-hidden="true" />
               Menu Publik

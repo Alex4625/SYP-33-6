@@ -54,42 +54,42 @@ export function Navbar({
   ) : (
     <>
       <Link href="/login" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>Masuk</Link>
-      <Link href="/daftar" prefetch={false} className={cn(buttonVariants())}>Daftar</Link>
+      <Link href="/daftar" prefetch={false} className={cn(buttonVariants(), "catalog-bevel border-black bg-accent text-black hover:bg-accent/80")}>Daftar</Link>
     </>
   );
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        <Link href="/" prefetch={false} className="flex items-center gap-2 font-semibold">
-          <span className="rounded-md bg-primary p-2 text-primary-foreground">
+    <header className="sticky top-0 z-40 border-b border-white bg-black text-white">
+      <div className="container flex min-h-16 items-center justify-between gap-4 py-2">
+        <Link href="/" prefetch={false} className="flex items-center gap-2 font-sans text-sm font-bold uppercase">
+          <span className="catalog-bevel bg-accent p-2 text-black">
             <UsersRoundIcon className="size-4" aria-hidden="true" />
           </span>
           <span>Alumni SYP-33-6</span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} prefetch={false} className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+            <Link key={item.href} href={item.href} prefetch={false} className="px-3 py-2 font-sans text-xs font-bold uppercase text-white hover:bg-white hover:text-black">
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 text-white md:flex">
           <DarkModeToggle />
           {authActions}
         </div>
         <div className="flex items-center gap-2 md:hidden">
           <DarkModeToggle />
-          <button type="button" className="rounded-md border p-2" onClick={() => setOpen((value) => !value)} aria-label="Buka menu">
+          <button type="button" className="border border-white p-2" onClick={() => setOpen((value) => !value)} aria-label="Buka menu">
             {open ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
           </button>
         </div>
       </div>
       {open ? (
-        <div className="border-t bg-background md:hidden">
+        <div className="border-t border-white bg-black md:hidden">
           <nav className="container grid gap-1 py-3">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} prefetch={false} className="rounded-md px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link key={item.href} href={item.href} prefetch={false} className="px-3 py-3 font-sans text-xs font-bold uppercase text-white hover:bg-white hover:text-black" onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}
@@ -116,7 +116,7 @@ export function Navbar({
               ) : (
                 <>
                   <Link href="/login" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))} onClick={() => setOpen(false)}>Masuk</Link>
-                  <Link href="/daftar" prefetch={false} className={cn(buttonVariants())} onClick={() => setOpen(false)}>Daftar</Link>
+                  <Link href="/daftar" prefetch={false} className={cn(buttonVariants(), "catalog-bevel border-black bg-accent text-black hover:bg-accent/80")} onClick={() => setOpen(false)}>Daftar</Link>
                 </>
               )}
             </div>

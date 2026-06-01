@@ -132,7 +132,7 @@ export function ProfilePhotoCropper({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-muted/20 p-4">
+    <div className="flex flex-wrap items-center gap-4 border border-black bg-muted/20 p-4 dark:border-border">
       <div className="relative size-28 shrink-0 overflow-hidden rounded-full border bg-muted sm:size-32">
         {previewUrl ? (
           <Image
@@ -174,7 +174,7 @@ export function ProfilePhotoCropper({
             <DialogTitle>Sesuaikan Foto Profil</DialogTitle>
             <DialogDescription>Geser foto dan gunakan slider sampai komposisinya sesuai.</DialogDescription>
           </DialogHeader>
-          <div className="relative h-[min(60vh,28rem)] overflow-hidden rounded-lg bg-black">
+          <div className="relative h-[min(60vh,28rem)] overflow-hidden border border-black bg-black dark:border-border">
             {sourceUrl ? (
               <Cropper
                 image={sourceUrl}

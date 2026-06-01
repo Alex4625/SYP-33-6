@@ -4,79 +4,117 @@
 
 @layer base {
   :root {
-    --background: 38 39% 97%;
-    --foreground: 24 23% 12%;
-    --card: 36 34% 99%;
-    --card-foreground: 24 23% 12%;
-    --popover: 36 34% 99%;
-    --popover-foreground: 24 23% 12%;
-    --primary: 24 48% 25%;
-    --primary-foreground: 38 39% 97%;
-    --secondary: 147 22% 89%;
-    --secondary-foreground: 151 23% 21%;
-    --muted: 35 26% 91%;
-    --muted-foreground: 27 11% 42%;
-    --accent: 35 88% 63%;
-    --accent-foreground: 24 48% 18%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 356 82% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 73 23% 66%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 81 31% 74%;
+    --muted-foreground: 0 0% 20%;
+    --accent: 46 97% 52%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 73% 44%;
     --destructive-foreground: 0 0% 98%;
-    --border: 32 22% 82%;
-    --input: 32 22% 82%;
-    --ring: 31 69% 49%;
-    --chart-1: 31 69% 49%;
-    --chart-2: 151 31% 38%;
-    --chart-3: 207 42% 42%;
-    --chart-4: 349 52% 52%;
-    --chart-5: 262 31% 48%;
-    --radius: 0.5rem;
-    --sidebar: 32 32% 94%;
-    --sidebar-foreground: 24 23% 12%;
-    --sidebar-accent: 35 88% 63%;
-    --sidebar-border: 32 22% 82%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 240 100% 47%;
+    --chart-1: 356 82% 51%;
+    --chart-2: 16 69% 60%;
+    --chart-3: 82 30% 74%;
+    --chart-4: 203 30% 69%;
+    --chart-5: 232 60% 71%;
+    --radius: 0rem;
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-accent: 46 97% 52%;
+    --sidebar-border: 0 0% 0%;
   }
   .dark {
-    --background: 24 18% 8%;
-    --foreground: 37 30% 91%;
-    --card: 24 16% 11%;
-    --card-foreground: 37 30% 91%;
-    --popover: 24 16% 11%;
-    --popover-foreground: 37 30% 91%;
-    --primary: 35 84% 66%;
-    --primary-foreground: 24 40% 12%;
-    --secondary: 151 19% 18%;
-    --secondary-foreground: 136 28% 86%;
-    --muted: 24 13% 17%;
-    --muted-foreground: 35 14% 67%;
-    --accent: 151 31% 38%;
-    --accent-foreground: 38 39% 97%;
-    --destructive: 0 62% 50%;
+    --background: 0 0% 7%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 356 82% 57%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 73 20% 38%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 76%;
+    --accent: 46 97% 52%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 72% 58%;
     --destructive-foreground: 0 0% 98%;
-    --border: 24 13% 22%;
-    --input: 24 13% 22%;
-    --ring: 35 84% 66%;
-    --chart-1: 35 84% 66%;
-    --chart-2: 151 31% 48%;
-    --chart-3: 207 42% 62%;
-    --chart-4: 349 52% 64%;
-    --chart-5: 262 31% 68%;
-    --sidebar: 24 16% 11%;
-    --sidebar-foreground: 37 30% 91%;
-    --sidebar-accent: 151 19% 18%;
-    --sidebar-border: 24 13% 22%;
+    --border: 0 0% 76%;
+    --input: 0 0% 76%;
+    --ring: 46 97% 52%;
+    --chart-1: 356 82% 57%;
+    --chart-2: 16 69% 60%;
+    --chart-3: 82 30% 74%;
+    --chart-4: 203 30% 69%;
+    --chart-5: 232 60% 71%;
+    --sidebar: 0 0% 11%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-accent: 46 97% 52%;
+    --sidebar-border: 0 0% 76%;
   }
   * {
     @apply border-border;
   }
   body {
-    @apply min-h-screen bg-background text-foreground antialiased;
+    @apply min-h-screen border-[8px] border-black bg-background font-serif text-foreground;
   }
   html {
+    @apply bg-black;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-normal;
+  }
+  button, input, label, select, nav {
     @apply font-sans;
   }
 }
 
 @layer components {
+  .rounded-sm,
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-4xl {
+    border-radius: 0 !important;
+  }
+  .shadow,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
   .section-band {
-    @apply border-y bg-muted/35;
+    @apply border-y border-black bg-muted/45 dark:border-border;
+  }
+  .catalog-panel {
+    @apply border border-black bg-card dark:border-border;
+  }
+  .catalog-title-bar {
+    @apply border-b border-black bg-background px-3 py-2 font-sans text-sm font-bold uppercase dark:border-border;
+  }
+  .catalog-bevel {
+    box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.8), inset -1px -1px 0 rgb(0 0 0 / 0.65);
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    border-width: 4px;
   }
 }

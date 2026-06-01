@@ -17,15 +17,15 @@ export function StatsCard({
   className?: string;
 }) {
   return (
-    <Card className={cn("rounded-lg border-border/80 bg-card/90 shadow-sm", className)}>
+    <Card className={cn("border-black bg-card dark:border-border", className)}>
       <CardContent className="flex items-start justify-between gap-4 p-4">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-normal">{value}</p>
+          <p className="mt-2 font-display text-2xl tracking-normal">{value}</p>
           {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
         </div>
         {Icon ? (
-          <span className="rounded-md bg-accent/40 p-2 text-primary">
+          <span className="catalog-bevel bg-accent p-2 text-black">
             <Icon className="size-5" aria-hidden="true" />
           </span>
         ) : null}

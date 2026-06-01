@@ -45,11 +45,11 @@ export default async function PublicLayout({ children }: { children: React.React
     <>
       <Navbar viewer={viewer} signOutAction={viewer ? signOutAction : undefined} />
       <main className="flex-1">{children}</main>
-      <footer className="border-t bg-card">
+      <footer className="border-t border-black bg-background dark:border-border">
         <div className="container grid gap-8 py-10 text-sm md:grid-cols-[minmax(0,1.6fr)_minmax(9rem,0.7fr)_minmax(9rem,0.7fr)]">
           <div className="max-w-md">
             <div className="flex items-center gap-3 text-foreground">
-              <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <span className="catalog-bevel flex size-10 items-center justify-center bg-accent text-black">
                 <UsersRoundIcon className="size-5" aria-hidden="true" />
               </span>
               <p className="text-base font-semibold">Alumni SYP-33-6</p>
@@ -62,9 +62,9 @@ export default async function PublicLayout({ children }: { children: React.React
           <div>
             <p className="font-semibold text-foreground">Jelajahi</p>
             <nav className="mt-4 grid gap-3 text-muted-foreground" aria-label="Navigasi footer">
-              <Link href="/alumni" prefetch={false} className="w-fit transition-colors hover:text-foreground">Direktori</Link>
-              <Link href="/postingan" prefetch={false} className="w-fit transition-colors hover:text-foreground">Postingan</Link>
-              <Link href="/galeri" prefetch={false} className="w-fit transition-colors hover:text-foreground">Galeri</Link>
+              <Link href="/alumni" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Direktori</Link>
+              <Link href="/postingan" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Postingan</Link>
+              <Link href="/galeri" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Galeri</Link>
             </nav>
           </div>
 
@@ -75,7 +75,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/semyopal33_?igsh=M3V3enF0aGd5N3Rs"
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
               >
                 <InstagramLogo className="size-4" />
                 <span>33</span>
@@ -84,7 +84,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/dumpiesssfromus?igsh=MWg1eWZzcm5tZGZhcw=="
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
               >
                 <InstagramLogo className="size-4" />
                 <span>6</span>
@@ -93,7 +93,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/osissmaksemyopal2?igsh=MTlhd28ycjNoNDQyNw=="
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
               >
                 <InstagramLogo className="size-4" />
                 <span>Almamater</span>
@@ -101,7 +101,7 @@ export default async function PublicLayout({ children }: { children: React.React
             </nav>
           </div>
         </div>
-        <div className="border-t">
+        <div className="border-t border-black dark:border-border">
           <div className="container py-5 text-sm text-muted-foreground">
             <p>© {new Date().getFullYear()} Alumni SYP-33-6. Semua hak dilindungi.</p>
           </div>

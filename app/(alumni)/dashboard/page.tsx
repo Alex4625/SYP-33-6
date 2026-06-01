@@ -33,18 +33,20 @@ export default async function AlumniDashboardPage() {
   return (
     <div className="container py-8">
       <div className="mb-6">
-        <p className="text-sm text-muted-foreground">Selamat datang kembali,</p>
-        <h1 className="text-3xl font-semibold">{profile?.fullName ?? session?.user.name}</h1>
+        <p className="font-sans text-xs font-bold uppercase text-muted-foreground">Selamat datang kembali</p>
+        <h1 className="mt-1 text-3xl uppercase">{profile?.fullName ?? session?.user.name}</h1>
       </div>
       <div className="grid gap-4 md:grid-cols-4">
         {quickLinks.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href}>
-              <Card className="rounded-lg transition hover:-translate-y-0.5 hover:shadow-md">
+              <Card className="transition hover:bg-accent/15">
                 <CardContent className="p-4">
-                  <Icon className="mb-4 size-6 text-primary" aria-hidden="true" />
-                  <p className="font-medium">{item.label}</p>
+                  <span className="catalog-bevel mb-4 inline-flex bg-accent p-2 text-black">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <p className="font-sans text-xs font-bold uppercase">{item.label}</p>
                 </CardContent>
               </Card>
             </Link>

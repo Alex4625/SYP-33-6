@@ -89,7 +89,7 @@ export function FileUpload({
         <div
           {...getRootProps()}
           className={cn(
-            "flex cursor-pointer items-center justify-center rounded-lg border border-dashed bg-muted/30 text-center transition hover:bg-muted/50",
+            "flex cursor-pointer items-center justify-center border border-dashed border-black bg-muted/30 text-center transition hover:bg-accent/20 dark:border-border",
             hasPreviews ? "min-h-16 gap-3 p-3" : "min-h-40 flex-col p-5",
             isDragActive && "border-primary bg-accent/20",
             processing && "pointer-events-none opacity-70",
@@ -119,13 +119,13 @@ export function FileUpload({
           </p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {previews.map((preview) => (
-            <div key={preview.url} className="group relative aspect-square overflow-hidden rounded-lg border bg-muted">
+            <div key={preview.url} className="group relative aspect-square overflow-hidden border border-black bg-muted dark:border-border">
               <Image src={preview.url} alt={preview.name} fill className="object-cover" sizes="120px" />
               <Button
                 type="button"
                 size="icon-xs"
                 variant="destructive"
-                className="absolute right-2 top-2 bg-background/90 opacity-100 shadow-sm sm:opacity-0 sm:group-hover:opacity-100"
+                className="absolute right-2 top-2 border-black bg-accent text-black opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                 onClick={(event) => {
                   event.stopPropagation();
                   setPreviews((current) => current.filter((item) => item.url !== preview.url));

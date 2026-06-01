@@ -21,40 +21,40 @@ export function IndonesiaDistributionMap({ locations }: { locations: DomicileDis
   const featuredLocations = locations.slice(0, 6);
 
   return (
-    <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm lg:grid-cols-[1.45fr_0.55fr]">
-      <div className="relative min-h-72 overflow-hidden bg-secondary/35 p-4 sm:p-6">
-        <div className="absolute left-4 top-4 z-10 rounded-md border bg-background/85 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur sm:left-6 sm:top-6">
-          <span className="flex items-center gap-1.5 font-medium text-foreground">
-            <MapPinIcon className="size-3.5 text-primary" aria-hidden="true" />
+    <div className="grid overflow-hidden border border-black bg-card dark:border-border lg:grid-cols-[1.45fr_0.55fr]">
+      <div className="relative min-h-72 overflow-hidden bg-[#9ab6c8] p-4 dark:bg-[#273d49] sm:p-6">
+        <div className="absolute left-4 top-4 z-10 border border-black bg-background px-3 py-2 text-xs text-muted-foreground dark:border-border sm:left-6 sm:top-6">
+          <span className="flex items-center gap-1.5 font-sans font-bold uppercase text-foreground">
+            <MapPinIcon className="size-3.5 text-foreground" aria-hidden="true" />
             Domisili alumni aktif
           </span>
-          <span className="mt-1 block">Arahkan kursor ke marker untuk detail.</span>
+          <span className="mt-1 block">Pilih marker atau lihat daftar kota untuk detail.</span>
         </div>
         <svg
           viewBox={INDONESIA_MAP_VIEWBOX}
           role="img"
           aria-label="Peta persebaran domisili alumni di Indonesia"
-          className="mt-14 h-auto w-full overflow-visible sm:mt-10"
+          className="mt-16 h-auto w-full overflow-visible sm:mt-10"
         >
           <g
-            strokeWidth="1.4"
+            strokeWidth="1.25"
             style={{
-              fill: "hsl(var(--primary) / 0.13)",
-              stroke: "hsl(var(--primary) / 0.48)",
+              fill: "hsl(var(--secondary))",
+              stroke: "hsl(var(--foreground) / 0.72)",
             }}
           >
             {INDONESIA_MAP_PATHS.map((path) => <path key={path} d={path} />)}
           </g>
           {mappedLocations.map((location) => {
-            const radius = 7 + (location.value / maxValue) * 8;
+            const radius = 6 + (location.value / maxValue) * 7;
             return (
               <g key={`${location.city}-${location.province ?? ""}`} className="group">
-                <circle cx={location.x} cy={location.y} r={radius + 6} className="fill-accent/20" />
+                <circle cx={location.x} cy={location.y} r={radius + 5} className="fill-background stroke-foreground stroke-[1]" />
                 <circle
                   cx={location.x}
                   cy={location.y}
                   r={radius}
-                  className="fill-primary stroke-background stroke-[3] transition group-hover:fill-accent group-hover:stroke-primary"
+                  className="fill-accent stroke-foreground stroke-[2]"
                 />
                 <title>{`${location.city}${location.province ? `, ${location.province}` : ""}: ${location.value} alumni`}</title>
               </g>
@@ -62,19 +62,19 @@ export function IndonesiaDistributionMap({ locations }: { locations: DomicileDis
           })}
         </svg>
         {mappedLocations.length === 0 ? (
-          <p className="absolute inset-x-4 bottom-4 rounded-md border bg-background/90 p-3 text-center text-sm text-muted-foreground sm:inset-x-6">
+          <p className="absolute inset-x-4 bottom-4 border border-black bg-background p-3 text-center text-sm text-muted-foreground dark:border-border sm:inset-x-6">
             Lokasi akan tampil setelah alumni melengkapi kota domisili.
           </p>
         ) : null}
       </div>
 
-      <div className="border-t p-5 lg:border-l lg:border-t-0">
+      <div className="border-t border-black p-5 dark:border-border lg:border-l lg:border-t-0">
         <div className="flex items-center gap-3">
-          <span className="rounded-md bg-accent/35 p-2 text-primary">
+          <span className="catalog-bevel bg-accent p-2 text-black">
             <UsersRoundIcon className="size-5" aria-hidden="true" />
           </span>
           <div>
-            <p className="text-2xl font-semibold">{totalAlumni}</p>
+            <p className="font-display text-2xl">{totalAlumni}</p>
             <p className="text-xs text-muted-foreground">alumni dengan data domisili</p>
           </div>
         </div>
@@ -85,7 +85,7 @@ export function IndonesiaDistributionMap({ locations }: { locations: DomicileDis
                 <p className="truncate font-medium">{location.city}</p>
                 {location.province ? <p className="truncate text-xs text-muted-foreground">{location.province}</p> : null}
               </div>
-              <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium">{location.value}</span>
+              <span className="catalog-bevel shrink-0 border border-black bg-accent px-2 py-1 font-sans text-xs font-bold text-black">{location.value}</span>
             </div>
           ))}
           {featuredLocations.length === 0 ? (

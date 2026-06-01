@@ -26,8 +26,8 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="container py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Galeri Kenangan</h1>
+      <div className="mb-6 border border-black bg-[#9ab6c8] p-4 text-black">
+        <h1 className="text-3xl uppercase">Galeri Kenangan</h1>
         <p className="mt-2 text-muted-foreground">Foto-foto kolektif dari masa sekolah dan pertemuan alumni.</p>
       </div>
       {photos.length > 0 ? <GalleryGrid photos={photos} /> : <EmptyState title="Belum ada foto" description="Foto galeri akan tampil setelah alumni atau admin mengunggah kenangan." />}

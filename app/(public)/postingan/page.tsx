@@ -26,8 +26,8 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="container py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Postingan Alumni</h1>
+      <div className="mb-6 border border-black bg-[#d77a7a] p-4 text-black">
+        <h1 className="text-3xl uppercase">Postingan Alumni</h1>
         <p className="mt-2 text-muted-foreground">Kumpulan cerita dan kenangan yang dibagikan alumni.</p>
       </div>
       {posts.length > 0 ? (
