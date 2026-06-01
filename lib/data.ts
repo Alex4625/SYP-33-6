@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, inArray, isNotNull, like, lt, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, isNotNull, like, lt, ne, or, sql } from "drizzle-orm";
 
 import { getCloudflareDb, type Database } from "@/db";
 import {
@@ -113,7 +113,7 @@ function alumniWhere(filters: AlumniFilters) {
 export async function getHomeData() {
   const db = await getCloudflareDb();
 
-  const [totals, latestAlumni, latestPosts] = await Promise.all([
+  const [totals, latestAlumni, latestPosts, latestGallery, domicileDistribution] = await Promise.all([
     db.all<{ totalAlumni: number; totalPosts: number; totalGallery: number }>(sql`
       select
         (select count(*) from users where role = 'ALUMNI' and status = 'APPROVED') as totalAlumni,
@@ -122,6 +122,25 @@ export async function getHomeData() {
     `),
     getAlumniCards({}, 6, 0, db),
     getPostCards({ limit: 3, offset: 0, publicOnly: true }, db),
+    getGalleryPhotos({ limit: 8, publicOnly: true }, db),
+    db
+      .select({
+        city: alumniProfiles.domicileCity,
+        province: alumniProfiles.domicileProvince,
+        value: count(),
+      })
+      .from(alumniProfiles)
+      .innerJoin(users, eq(alumniProfiles.userId, users.id))
+      .where(
+        and(
+          eq(users.role, "ALUMNI"),
+          eq(users.status, "APPROVED"),
+          isNotNull(alumniProfiles.domicileCity),
+          ne(alumniProfiles.domicileCity, ""),
+        ),
+      )
+      .groupBy(alumniProfiles.domicileCity, alumniProfiles.domicileProvince)
+      .orderBy(desc(count())),
   ]);
   const counts = totals[0];
 
@@ -131,6 +150,12 @@ export async function getHomeData() {
     totalGallery: counts?.totalGallery ?? 0,
     latestAlumni,
     latestPosts,
+    latestGallery,
+    domicileDistribution: domicileDistribution.map((location) => ({
+      city: location.city ?? "",
+      province: location.province,
+      value: location.value,
+    })),
   };
 }
 
@@ -302,8 +327,11 @@ export async function getPublicAlumniProfile(username: string) {
   };
 }
 
-export async function getGalleryPhotos({ limit, offset = 0, publicOnly = false }: { limit: number; offset?: number; publicOnly?: boolean }) {
-  const db = await getCloudflareDb();
+export async function getGalleryPhotos(
+  { limit, offset = 0, publicOnly = false }: { limit: number; offset?: number; publicOnly?: boolean },
+  database?: Database,
+) {
+  const db = database ?? await getCloudflareDb();
   const rows = await db
     .select({
       id: galleryPhotos.id,
