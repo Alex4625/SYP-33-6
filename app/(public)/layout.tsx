@@ -1,10 +1,29 @@
 import Link from "next/link";
-import { AtSignIcon, UsersRoundIcon } from "lucide-react";
+import { UsersRoundIcon } from "lucide-react";
 
 import { Navbar } from "@/components/shared/Navbar";
 import { auth, signOut } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+function InstagramLogo({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <rect height="18" rx="5" width="18" x="3" y="3" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.4" cy="6.6" fill="currentColor" r="1" stroke="none" />
+    </svg>
+  );
+}
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -58,7 +77,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 rel="noreferrer"
                 className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
               >
-                <AtSignIcon className="size-4" aria-hidden="true" />
+                <InstagramLogo className="size-4" />
                 <span>33</span>
               </a>
               <a
@@ -67,7 +86,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 rel="noreferrer"
                 className="flex w-fit items-center gap-2 transition-colors hover:text-foreground"
               >
-                <AtSignIcon className="size-4" aria-hidden="true" />
+                <InstagramLogo className="size-4" />
                 <span>6</span>
               </a>
             </nav>
