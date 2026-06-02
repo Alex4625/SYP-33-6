@@ -43,7 +43,7 @@ export default async function HomePage() {
         />
         <div className="container relative flex min-h-[620px] items-end py-8 sm:py-12">
           <div className="grid w-full gap-4 lg:grid-cols-[1.12fr_0.88fr]">
-          <div className="border border-white bg-black p-5 text-white sm:p-7">
+          <div className="border border-white bg-black/[0.78] p-5 text-white backdrop-blur-[2px] sm:p-7">
             <p className="catalog-bevel mb-5 inline-flex border border-black bg-accent px-3 py-1 font-sans text-xs font-bold uppercase text-black">
               Satu angkatan, tetap terhubung
             </p>
@@ -63,7 +63,7 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="border border-black bg-[#b3bd95] p-5 text-black sm:p-6">
+          <div className="border border-black bg-[#b3bd95]/[0.82] p-5 text-black backdrop-blur-[2px] sm:p-6">
             <MapPinnedIcon className="size-7" aria-hidden="true" />
             <p className="mt-8 font-sans text-xs font-bold uppercase">Jejak alumni</p>
             <h2 className="mt-2 max-w-md font-display text-2xl uppercase leading-none">

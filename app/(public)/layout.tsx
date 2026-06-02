@@ -62,9 +62,9 @@ export default async function PublicLayout({ children }: { children: React.React
           <div>
             <p className="font-sans text-xs font-bold uppercase text-foreground">Jelajahi</p>
             <nav className="mt-4 grid gap-3 text-muted-foreground" aria-label="Navigasi footer">
-              <Link href="/alumni" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Direktori</Link>
-              <Link href="/postingan" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Postingan</Link>
-              <Link href="/galeri" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Galeri</Link>
+              <Link href="/alumni" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Direktori</Link>
+              <Link href="/postingan" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Postingan</Link>
+              <Link href="/galeri" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Galeri</Link>
             </nav>
           </div>
 
@@ -75,7 +75,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/semyopal33_?igsh=M3V3enF0aGd5N3Rs"
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />
                 <span>33</span>
@@ -84,7 +84,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/dumpiesssfromus?igsh=MWg1eWZzcm5tZGZhcw=="
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />
                 <span>6</span>
@@ -93,7 +93,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/osissmaksemyopal2?igsh=MTlhd28ycjNoNDQyNw=="
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-fit items-center gap-2 text-[#0000ee] underline dark:text-[#9ab6ff]"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />
                 <span>Almamater</span>
