@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AlumniCard } from "@/components/shared/AlumniCard";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { FilterBar } from "@/components/shared/FilterBar";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
@@ -39,10 +40,7 @@ export default async function AlumniDirectoryPage({ searchParams }: { searchPara
 
   return (
     <div className="container py-10">
-      <div className="mb-6 border border-black bg-[#b3bd95] p-4 text-black">
-        <h1 className="text-3xl uppercase">Direktori Alumni</h1>
-        <p className="mt-2 text-muted-foreground">Cari alumni berdasarkan nama, jurusan, atau program studi.</p>
-      </div>
+      <CatalogPageHeader title="Direktori Alumni" description="Cari alumni berdasarkan nama, jurusan, atau program studi." tint="sage" />
       <FilterBar searchParams={filterParams} />
       {alumni.length > 0 ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

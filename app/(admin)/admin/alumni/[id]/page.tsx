@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AdminAlumniForm } from "@/app/(admin)/admin/alumni/[id]/AdminAlumniForm";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,41 +28,44 @@ export default async function AdminAlumniDetailPage({ params }: { params: Promis
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">{user.alumniProfile.fullName}</h1>
-          <div className="mt-2 flex items-center gap-3">
+      <CatalogPageHeader
+        eyebrow="Detail Alumni"
+        title={user.alumniProfile.fullName}
+        description={`Username: ${user.username}`}
+        tint="sage"
+        action={
+          <div className="flex flex-wrap gap-2">
+            <ConfirmDialog
+              title={user.status === "DISABLED" ? "Aktifkan alumni?" : "Nonaktifkan alumni?"}
+              description={
+                user.status === "DISABLED"
+                  ? "Alumni akan bisa mengakses dashboard kembali setelah diaktifkan."
+                  : "Alumni tidak akan bisa mengakses dashboard sampai akun diaktifkan lagi."
+              }
+              action={toggleAlumniStatus.bind(null, user.id)}
+              actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+              variant="warning"
+              triggerIcon="power"
+              triggerSize="default"
+            >
+              {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
+            </ConfirmDialog>
+            <ConfirmDialog
+              title="Hapus alumni?"
+              description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
+              action={deleteAlumni.bind(null, user.id)}
+              actionLabel="Hapus"
+              triggerIcon="trash"
+              triggerSize="default"
+            />
+          </div>
+        }
+      />
+      <div className="mb-6 flex flex-wrap items-center gap-3">
             <StatusBadge status={user.status} />
             <span className="text-sm text-muted-foreground">Terdaftar {formatDate(user.createdAt)}</span>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <ConfirmDialog
-            title={user.status === "DISABLED" ? "Aktifkan alumni?" : "Nonaktifkan alumni?"}
-            description={
-              user.status === "DISABLED"
-                ? "Alumni akan bisa mengakses dashboard kembali setelah diaktifkan."
-                : "Alumni tidak akan bisa mengakses dashboard sampai akun diaktifkan lagi."
-            }
-            action={toggleAlumniStatus.bind(null, user.id)}
-            actionLabel={user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
-            variant="warning"
-            triggerIcon="power"
-            triggerSize="default"
-          >
-            {user.status === "DISABLED" ? "Aktifkan" : "Nonaktifkan"}
-          </ConfirmDialog>
-          <ConfirmDialog
-            title="Hapus alumni?"
-            description="Akun alumni, profil, postingan, dan foto terkait akan dihapus permanen."
-            action={deleteAlumni.bind(null, user.id)}
-            actionLabel="Hapus"
-            triggerIcon="trash"
-            triggerSize="default"
-          />
-        </div>
       </div>
-      <Card className="mb-6 rounded-lg">
+      <Card className="mb-6">
         <CardContent className="grid gap-3 p-5 text-sm md:grid-cols-2">
           <p><span className="font-medium">Username:</span> {user.username}</p>
           <p><span className="font-medium">Email:</span> {user.alumniProfile.email ?? "-"}</p>
@@ -69,7 +73,7 @@ export default async function AdminAlumniDetailPage({ params }: { params: Promis
           <p><span className="font-medium">Tanggal lahir:</span> {formatDate(user.alumniProfile.birthDate)}</p>
         </CardContent>
       </Card>
-      <Card className="rounded-lg">
+      <Card>
         <CardHeader>
           <CardTitle>Edit Data Alumni</CardTitle>
         </CardHeader>

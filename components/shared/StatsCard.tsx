@@ -20,7 +20,7 @@ export function StatsCard({
     <Card className={cn("border-black bg-card dark:border-border", className)}>
       <CardContent className="flex items-start justify-between gap-4 p-4">
         <div>
-          <p className="text-sm text-muted-foreground">{title}</p>
+          <p className="font-sans text-xs font-bold uppercase text-muted-foreground">{title}</p>
           <p className="mt-2 font-display text-2xl tracking-normal">{value}</p>
           {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
         </div>

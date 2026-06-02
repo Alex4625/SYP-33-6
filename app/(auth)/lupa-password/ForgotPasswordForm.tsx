@@ -6,6 +6,7 @@ import { MailIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestPasswordReset } from "@/lib/actions";
@@ -14,14 +15,14 @@ export function ForgotPasswordForm() {
   const [state, formAction, pending] = useActionState(requestPasswordReset, {});
 
   return (
-    <Card className="w-full max-w-md rounded-lg shadow-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Lupa Password</CardTitle>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
-          {state.success ? <p className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{state.success}</p> : null}
-          {state.error ? <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{state.error}</p> : null}
+          {state.success ? <FormNotice variant="success">{state.success}</FormNotice> : null}
+          {state.error ? <FormNotice variant="error">{state.error}</FormNotice> : null}
           <div className="space-y-2">
             <Label htmlFor="email">Email terdaftar</Label>
             <Input id="email" name="email" type="email" required />

@@ -5,6 +5,7 @@ import { SaveIcon } from "lucide-react";
 
 import type { AlumniProfile } from "@/db/schema";
 import { ProfilePhotoCropper } from "@/components/shared/ProfilePhotoCropper";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,8 +81,8 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
 
   return (
     <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-2">
-      {success ? <p className="md:col-span-2 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{success}</p> : null}
-      {error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
+      {success ? <FormNotice className="md:col-span-2" variant="success">{success}</FormNotice> : null}
+      {error ? <FormNotice className="md:col-span-2" variant="error">{error}</FormNotice> : null}
       <div className="md:col-span-2">
         <ProfilePhotoCropper currentPhotoUrl={profile.profilePhotoUrl} onChange={setProfilePhoto} />
       </div>
@@ -91,7 +92,7 @@ export function ProfileForm({ profile }: { profile: AlumniProfile }) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="highSchoolMajor">Jurusan SMA</Label>
-        <select id="highSchoolMajor" name="highSchoolMajor" defaultValue={profile.highSchoolMajor} className="h-8 w-full rounded-lg border border-input bg-background px-2 text-sm">
+        <select id="highSchoolMajor" name="highSchoolMajor" defaultValue={profile.highSchoolMajor} className="h-8 w-full border border-input bg-background px-2 text-sm">
           <option value="IPA">IPA</option>
           <option value="IPS">IPS</option>
         </select>

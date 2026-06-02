@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { EmptyState } from "@/components/shared/EmptyState";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
 import { PostCard } from "@/components/shared/PostCard";
 import { countPublicPosts, getPostCards } from "@/lib/data";
@@ -26,10 +27,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="container py-10">
-      <div className="mb-6 border border-black bg-[#d77a7a] p-4 text-black">
-        <h1 className="text-3xl uppercase">Postingan Alumni</h1>
-        <p className="mt-2 text-muted-foreground">Kumpulan cerita dan kenangan yang dibagikan alumni.</p>
-      </div>
+      <CatalogPageHeader title="Postingan Alumni" description="Kumpulan cerita dan kenangan yang dibagikan alumni." tint="salmon" />
       {posts.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {posts.map((post) => <PostCard key={post.id} post={post} compact />)}

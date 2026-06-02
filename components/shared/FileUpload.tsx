@@ -101,7 +101,7 @@ export function FileUpload({
             <UploadCloudIcon className="mb-3 size-8 text-primary" aria-hidden="true" />
           )}
           <div className={hasPreviews ? "text-left" : undefined}>
-            <p className="text-sm font-medium">{processing ? "Menyiapkan foto..." : hasPreviews ? "Tambah foto lain" : label}</p>
+            <p className="font-sans text-xs font-bold uppercase">{processing ? "Menyiapkan foto..." : hasPreviews ? "Tambah foto lain" : label}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               JPG, PNG, WEBP. Maksimal {maxSizeMb} MB{multiple ? `, hingga ${maxFiles} foto` : ""}. Foto besar otomatis dikompres.
             </p>

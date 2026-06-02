@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProfileForm } from "@/app/(alumni)/dashboard/profil/ProfileForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
+import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { getProfileByUserId } from "@/lib/data";
 
@@ -19,10 +20,8 @@ export default async function ProfilePage() {
 
   return (
     <div className="container py-8">
-      <Card className="rounded-lg">
-        <CardHeader>
-          <CardTitle>Edit Profil</CardTitle>
-        </CardHeader>
+      <CatalogPageHeader title="Edit Profil" description="Perbarui identitas, domisili, tautan, dan foto profil Anda." tint="periwinkle" />
+      <Card>
         <CardContent>
           <ProfileForm profile={profile} />
         </CardContent>

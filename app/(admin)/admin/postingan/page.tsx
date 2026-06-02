@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
 import { AdminPostCaption } from "@/components/shared/AdminPostCaption";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { VisibilityBadge } from "@/components/shared/VisibilityBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,20 +33,22 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Kelola Postingan</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Sembunyikan atau hapus postingan alumni.</p>
-      </div>
-      <form className="mb-4 grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[1fr_180px_auto]">
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Kelola Postingan"
+        description="Sembunyikan atau hapus postingan alumni."
+        tint="salmon"
+      />
+      <form className="mb-4 grid gap-3 border border-black bg-card p-4 dark:border-border md:grid-cols-[1fr_180px_auto]">
         <Input name="q" defaultValue={q} placeholder="Cari pembuat postingan" />
-        <select name="status" defaultValue={status} className="h-8 rounded-lg border border-input bg-background px-2 text-sm">
+        <select name="status" defaultValue={status} className="h-8 border border-input bg-background px-2 text-sm">
           <option value="">Semua</option>
           <option value="public">Publik</option>
           <option value="hidden">Tersembunyi</option>
         </select>
         <Button type="submit">Filter</Button>
       </form>
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <div className="overflow-hidden border border-black bg-card dark:border-border">
         <Table className="min-w-[1080px] table-fixed">
           <TableHeader>
             <TableRow>
@@ -64,7 +68,7 @@ export default async function AdminPostsPage({ searchParams }: { searchParams: P
                   <AdminPostCaption caption={post.caption} />
                 </TableCell>
                 <TableCell>{post.images.length}</TableCell>
-                <TableCell>{post.isHidden ? <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-700">Disembunyikan</span> : <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs text-emerald-700">Publik</span>}</TableCell>
+                <TableCell><VisibilityBadge hidden={post.isHidden} /></TableCell>
                 <TableCell>{formatShortDate(post.createdAt)}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-2">

@@ -52,7 +52,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <span className="catalog-bevel flex size-10 items-center justify-center bg-accent text-black">
                 <UsersRoundIcon className="size-5" aria-hidden="true" />
               </span>
-              <p className="text-base font-semibold">Alumni SYP-33-6</p>
+              <p className="font-sans text-sm font-bold uppercase">Alumni SYP-33-6</p>
             </div>
             <p className="mt-4 leading-6 text-muted-foreground">
               Ruang untuk tetap terhubung, berbagi cerita, dan merawat kenangan bersama alumni SYP-33-6.
@@ -60,7 +60,7 @@ export default async function PublicLayout({ children }: { children: React.React
           </div>
 
           <div>
-            <p className="font-semibold text-foreground">Jelajahi</p>
+            <p className="font-sans text-xs font-bold uppercase text-foreground">Jelajahi</p>
             <nav className="mt-4 grid gap-3 text-muted-foreground" aria-label="Navigasi footer">
               <Link href="/alumni" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Direktori</Link>
               <Link href="/postingan" prefetch={false} className="w-fit text-[#0000ee] underline dark:text-[#9ab6ff]">Postingan</Link>
@@ -69,7 +69,7 @@ export default async function PublicLayout({ children }: { children: React.React
           </div>
 
           <div>
-            <p className="font-semibold text-foreground">Instagram</p>
+            <p className="font-sans text-xs font-bold uppercase text-foreground">Instagram</p>
             <nav className="mt-4 grid gap-3 text-muted-foreground" aria-label="Media sosial">
               <a
                 href="https://www.instagram.com/semyopal33_?igsh=M3V3enF0aGd5N3Rs"

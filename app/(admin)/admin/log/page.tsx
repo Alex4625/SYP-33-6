@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -31,15 +32,17 @@ export default async function AdminLogPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Audit Log</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Riwayat aksi admin di sistem.</p>
-      </div>
-      <form className="mb-4 flex flex-wrap gap-3 rounded-lg border bg-card p-4">
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Audit Log"
+        description="Riwayat aksi admin di sistem."
+        tint="steel"
+      />
+      <form className="mb-4 flex flex-wrap gap-3 border border-black bg-card p-4 dark:border-border">
         <Input type="date" name="tanggal" defaultValue={date} className="w-56" />
         <Button type="submit">Filter</Button>
       </form>
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <div className="overflow-hidden border border-black bg-card dark:border-border">
         <Table>
           <TableHeader>
             <TableRow>

@@ -49,7 +49,7 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
 
   return (
     <div className="container py-10">
-      <Card className="overflow-hidden rounded-lg">
+      <Card className="overflow-hidden">
         <CardContent className="grid gap-8 p-6 md:grid-cols-[220px_1fr]">
           <div className="relative aspect-square overflow-hidden rounded-full border bg-muted">
             {alumni.profilePhotoUrl ? (
@@ -62,7 +62,7 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-semibold">{alumni.fullName}</h1>
+              <h1 className="font-display text-3xl uppercase leading-none">{alumni.fullName}</h1>
               <Badge variant="secondary">{alumni.highSchoolMajor}</Badge>
             </div>
             <p className="mt-2 flex items-center gap-2 text-muted-foreground">
@@ -90,7 +90,9 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
       </Card>
 
       <section className="mt-10">
-        <h2 className="text-2xl font-semibold">Postingan Alumni</h2>
+        <div className="border border-black bg-[#d77a7a] p-3 text-black">
+          <h2 className="font-display text-2xl uppercase leading-none">Postingan Alumni</h2>
+        </div>
         {alumni.user.posts.length > 0 ? (
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
             {alumni.user.posts.map((post) => <PostCard key={post.id} post={post} compact />)}

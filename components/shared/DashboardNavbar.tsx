@@ -79,7 +79,7 @@ function NavLink({
       <Icon className="size-4" aria-hidden="true" />
       <span>{item.label}</span>
       {item.badge ? (
-        <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none text-primary-foreground">
+        <span className="ml-auto border border-black bg-[#fcc20f] px-1.5 py-0.5 text-[10px] leading-none text-black">
           {item.badge}
         </span>
       ) : null}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ImagePlusIcon } from "lucide-react";
 
 import { FileUpload } from "@/components/shared/FileUpload";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +54,7 @@ export function GalleryUploadForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      {error ? <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
+      {error ? <FormNotice variant="error">{error}</FormNotice> : null}
       <FileUpload name="image" label="Upload foto galeri" maxFiles={1} maxSizeMb={5} />
       <div className="space-y-2">
         <Label htmlFor="caption">Keterangan</Label>

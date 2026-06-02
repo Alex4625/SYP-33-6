@@ -6,6 +6,7 @@ import { RotateCcwIcon, SaveIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
 import { FileUpload } from "@/components/shared/FileUpload";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -80,7 +81,7 @@ export function EditPostForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      {error ? <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
+      {error ? <FormNotice variant="error">{error}</FormNotice> : null}
       <div className="space-y-2">
         <Label htmlFor="caption">Caption</Label>
         <Textarea id="caption" name="caption" rows={7} defaultValue={caption} required />
@@ -96,13 +97,13 @@ export function EditPostForm({
             {images.map((image) => {
               const removed = removedIds.includes(image.id);
               return (
-                <div key={image.id} className={cn("relative aspect-square overflow-hidden rounded-lg border bg-muted", removed && "opacity-45")}>
+                <div key={image.id} className={cn("relative aspect-square overflow-hidden border border-black bg-muted dark:border-border", removed && "opacity-45")}>
                   <Image src={image.imageUrl} alt="Foto postingan" fill className="object-cover" sizes="140px" />
                   <Button
                     type="button"
                     size="icon-xs"
                     variant={removed ? "outline" : "destructive"}
-                    className="absolute right-2 top-2 bg-background/90 shadow-sm"
+                    className="absolute right-2 top-2 bg-background/90"
                     onClick={() => toggleRemoved(image.id)}
                     aria-label={removed ? "Batalkan hapus foto" : "Hapus foto"}
                   >
@@ -127,9 +128,9 @@ export function EditPostForm({
           <FileUpload name="images" label="Pilih foto tambahan" multiple maxFiles={availableSlots} maxSizeMb={5} />
         </div>
       ) : (
-        <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+        <FormNotice>
           Batas empat foto sudah terisi. Lepas salah satu foto jika ingin menambahkan foto baru.
-        </p>
+        </FormNotice>
       )}
 
       <div className="flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FileTextIcon, PencilIcon, PlusIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,20 +26,19 @@ export default async function MyPostsPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Postingan Saya</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Kelola postingan yang sudah Anda bagikan.</p>
-        </div>
-        <Link href="/dashboard/postingan/baru" className={cn(buttonVariants())}>
+      <CatalogPageHeader
+        title="Postingan Saya"
+        description="Kelola postingan yang sudah Anda bagikan."
+        tint="salmon"
+        action={<Link href="/dashboard/postingan/baru" className={cn(buttonVariants())}>
           <PlusIcon className="size-4" aria-hidden="true" />
           Buat
-        </Link>
-      </div>
+        </Link>}
+      />
       {posts.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
-            <Card key={post.id} className="overflow-hidden rounded-lg">
+            <Card key={post.id} className="overflow-hidden">
               <div className="relative aspect-[4/3] bg-muted">
                 {post.images[0] ? (
                   <Image src={post.images[0].imageUrl} alt="Foto postingan" fill className="object-cover" sizes="320px" />

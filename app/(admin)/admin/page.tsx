@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { CheckCircle2Icon, Clock3Icon, UserXIcon, UsersRoundIcon } from "lucide-react";
 
 import { AdminCharts } from "@/components/shared/AdminCharts";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,15 +54,17 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Dashboard Admin</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Ringkasan pertumbuhan dan aktivitas komunitas alumni.</p>
-      </div>
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Dashboard Admin"
+        description="Ringkasan pertumbuhan dan aktivitas komunitas alumni."
+        tint="peach"
+      />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard title="Total Alumni" value={total} icon={UsersRoundIcon} />
-        <StatsCard title="Menunggu Verifikasi" value={pending} icon={Clock3Icon} className="border-amber-300" />
-        <StatsCard title="Alumni Aktif" value={approved} icon={CheckCircle2Icon} className="border-emerald-300" />
-        <StatsCard title="Alumni Nonaktif" value={disabled} icon={UserXIcon} className="border-rose-300" />
+        <StatsCard title="Menunggu Verifikasi" value={pending} icon={Clock3Icon} className="bg-[#fcc20f]" />
+        <StatsCard title="Alumni Aktif" value={approved} icon={CheckCircle2Icon} className="bg-[#c0d4a7]" />
+        <StatsCard title="Alumni Nonaktif" value={disabled} icon={UserXIcon} className="bg-[#d77a7a]" />
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <StatsCard title="Postingan" value={`${postPublic} publik / ${postHidden} tersembunyi`} />
@@ -78,7 +81,7 @@ export default async function AdminDashboardPage() {
           />
         </Suspense>
       </div>
-      <Card className="mt-6 rounded-lg">
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-base">Alumni Baru</CardTitle>
         </CardHeader>

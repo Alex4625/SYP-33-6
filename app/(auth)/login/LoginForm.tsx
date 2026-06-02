@@ -8,6 +8,7 @@ import { Loader2Icon, LogInIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/validations";
@@ -67,17 +68,17 @@ export function LoginForm({ admin = false }: { admin?: boolean }) {
   }
 
   return (
-    <Card className="w-full max-w-md rounded-lg shadow-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>{admin ? "Masuk Admin" : "Masuk Alumni"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
-          {error ? <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
+          {error ? <FormNotice variant="error">{error}</FormNotice> : null}
           {searchParams.get("reset") === "success" ? (
-            <p className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">
+            <FormNotice variant="success">
               Password berhasil diubah. Silakan masuk kembali.
-            </p>
+            </FormNotice>
           ) : null}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>

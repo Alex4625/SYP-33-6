@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Edit3Icon, FilePlus2Icon, ImagePlusIcon, UsersRoundIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { PostCard } from "@/components/shared/PostCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,10 +33,12 @@ export default async function AlumniDashboardPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <p className="font-sans text-xs font-bold uppercase text-muted-foreground">Selamat datang kembali</p>
-        <h1 className="mt-1 text-3xl uppercase">{profile?.fullName ?? session?.user.name}</h1>
-      </div>
+      <CatalogPageHeader
+        eyebrow="Selamat datang kembali"
+        title={profile?.fullName ?? session?.user.name ?? "Alumni"}
+        description="Kelola profil, bagikan cerita, dan temukan kembali teman sekolah."
+        tint="lime"
+      />
       <div className="grid gap-4 md:grid-cols-4">
         {quickLinks.map((item) => {
           const Icon = item.icon;
@@ -55,7 +58,7 @@ export default async function AlumniDashboardPage() {
       </div>
       <section className="mt-10">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Postingan Terbaru Saya</h2>
+          <h2 className="font-display text-2xl uppercase leading-none">Postingan Terbaru Saya</h2>
           <Link href="/dashboard/postingan" className={cn(buttonVariants({ variant: "outline" }))}>Kelola</Link>
         </div>
         {latestPosts.length ? (

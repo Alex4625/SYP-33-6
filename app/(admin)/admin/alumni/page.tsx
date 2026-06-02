@@ -3,6 +3,7 @@ import Link from "next/link";
 import { EyeIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -38,13 +39,15 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Manajemen Alumni</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Cari, filter, dan kelola semua akun alumni.</p>
-      </div>
-      <form className="mb-4 grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[1fr_180px_auto]">
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Manajemen Alumni"
+        description="Cari, filter, dan kelola semua akun alumni."
+        tint="sage"
+      />
+      <form className="mb-4 grid gap-3 border border-black bg-card p-4 dark:border-border md:grid-cols-[1fr_180px_auto]">
         <Input name="q" defaultValue={q} placeholder="Cari nama atau username" />
-        <select name="status" defaultValue={status} className="h-8 rounded-lg border border-input bg-background px-2 text-sm">
+        <select name="status" defaultValue={status} className="h-8 border border-input bg-background px-2 text-sm">
           <option value="">Semua status</option>
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
@@ -53,7 +56,7 @@ export default async function AdminAlumniPage({ searchParams }: { searchParams: 
         </select>
         <Button type="submit">Filter</Button>
       </form>
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <div className="overflow-hidden border border-black bg-card dark:border-border">
         <Table>
           <TableHeader>
             <TableRow>

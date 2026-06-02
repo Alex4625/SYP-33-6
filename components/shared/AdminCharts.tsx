@@ -27,13 +27,14 @@ type MonthlyPoint = {
   total: number;
 };
 
-const colors = ["#b86430", "#51745b", "#3f6f8f", "#b64f64", "#6f5a9f"];
+const colors = ["#e6915d", "#b3bd95", "#9ab6c8", "#d77a7a", "#8c9ae0", "#8e8a25", "#c0d4a7"];
+const tooltipStyle = { border: "1px solid #000", borderRadius: 0, fontFamily: '"Times New Roman", Times, serif' };
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <Card className="rounded-lg">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent className="h-72">{children}</CardContent>
     </Card>
@@ -61,7 +62,7 @@ export function AdminCharts({
             <Pie data={majorData} dataKey="value" nameKey="name" innerRadius={56} outerRadius={88} paddingAngle={2}>
               {majorData.map((_, index) => <Cell key={index} fill={colors[index % colors.length]} />)}
             </Pie>
-            <Tooltip />
+            <Tooltip contentStyle={tooltipStyle} />
           </PieChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -71,8 +72,8 @@ export function AdminCharts({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" allowDecimals={false} />
             <YAxis dataKey="name" type="category" width={90} tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Bar dataKey="value" fill="#b86430" radius={[0, 6, 6, 0]} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="value" fill="#e6915d" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -82,8 +83,8 @@ export function AdminCharts({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="value" fill="#51745b" radius={[6, 6, 0, 0]} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="value" fill="#b3bd95" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -93,8 +94,8 @@ export function AdminCharts({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="value" fill="#3f6f8f" radius={[6, 6, 0, 0]} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Bar dataKey="value" fill="#9ab6c8" />
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -105,8 +106,8 @@ export function AdminCharts({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Line type="monotone" dataKey="total" stroke="#b86430" strokeWidth={3} dot={{ r: 4 }} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="total" stroke="#e6915d" strokeWidth={3} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>

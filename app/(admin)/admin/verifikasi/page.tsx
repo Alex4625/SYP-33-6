@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CheckIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { approveAlumni, rejectAlumni } from "@/lib/actions";
@@ -24,11 +25,13 @@ export default async function VerificationPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Verifikasi Alumni</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Setujui atau tolak registrasi yang menunggu pemeriksaan.</p>
-      </div>
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Verifikasi Alumni"
+        description="Setujui atau tolak registrasi yang menunggu pemeriksaan."
+        tint="lime"
+      />
+      <div className="overflow-hidden border border-black bg-card dark:border-border">
         <Table>
           <TableHeader>
             <TableRow>

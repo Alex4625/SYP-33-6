@@ -150,7 +150,7 @@ export function ProfilePhotoCropper({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-medium">Foto profil</p>
+        <p className="font-sans text-xs font-bold uppercase">Foto profil</p>
         <p className="mt-1 max-w-xl text-sm text-muted-foreground">
           Pilih foto lalu atur posisi dan pembesarannya. Foto akan disimpan sesuai potongan yang Anda lihat.
         </p>
@@ -190,7 +190,7 @@ export function ProfilePhotoCropper({
             ) : null}
           </div>
           <label className="grid gap-2 text-sm">
-            <span className="font-medium">Perbesar foto</span>
+            <span className="font-sans text-xs font-bold uppercase">Perbesar foto</span>
             <input
               type="range"
               min={1}

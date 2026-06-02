@@ -39,7 +39,7 @@ export function PaginationLinks({
       >
         Sebelumnya
       </Link>
-      <span className="rounded-md border bg-card px-3 py-1.5 text-sm">
+      <span className="border border-black bg-card px-3 py-1.5 font-sans text-xs font-bold uppercase dark:border-border">
         Halaman {currentPage} dari {totalPages}
       </span>
       <Link

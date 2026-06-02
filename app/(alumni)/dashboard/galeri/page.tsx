@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ImagePlusIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { buttonVariants } from "@/components/ui/button";
 import { deleteOwnGalleryPhoto } from "@/lib/actions";
@@ -24,21 +25,20 @@ export default async function MyGalleryPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Galeri Saya</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Kelola foto kenangan yang sudah Anda unggah.</p>
-        </div>
-        <Link href="/dashboard/galeri/upload" className={cn(buttonVariants())}>
+      <CatalogPageHeader
+        title="Galeri Saya"
+        description="Kelola foto kenangan yang sudah Anda unggah."
+        tint="sky"
+        action={<Link href="/dashboard/galeri/upload" className={cn(buttonVariants())}>
           <ImagePlusIcon className="size-4" aria-hidden="true" />
           Upload Foto
-        </Link>
-      </div>
+        </Link>}
+      />
 
       {photos.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {photos.map((photo) => (
-            <article key={photo.id} className="overflow-hidden rounded-lg border bg-card">
+            <article key={photo.id} className="overflow-hidden border border-black bg-card dark:border-border">
               <div className="relative aspect-[4/3] bg-muted">
                 <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
               </div>

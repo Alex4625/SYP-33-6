@@ -7,6 +7,7 @@ import { UserPlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerSchema, type ActionFieldErrors } from "@/lib/validations";
@@ -104,13 +105,13 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl rounded-lg shadow-sm">
+    <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Daftar Alumni</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} onInput={clearClientErrors} className="grid gap-4 md:grid-cols-2">
-          {error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
+          {error ? <FormNotice className="md:col-span-2" variant="error">{error}</FormNotice> : null}
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="fullName">Nama lengkap</Label>
             <Input id="fullName" name="fullName" placeholder="Contoh: Ahmad Fadli" required />
@@ -130,7 +131,7 @@ export function RegisterForm() {
               name="highSchoolMajor"
               defaultValue=""
               required
-              className="h-8 w-full rounded-lg border border-input bg-background px-2 text-sm"
+              className="h-8 w-full border border-input bg-background px-2 text-sm"
             >
               <option value="">Pilih jurusan</option>
               <option value="IPA">IPA</option>

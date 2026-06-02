@@ -5,6 +5,7 @@ import { SaveIcon } from "lucide-react";
 
 import type { AlumniProfile } from "@/db/schema";
 import { adminUpdateAlumni } from "@/lib/actions";
+import { FormNotice } from "@/components/shared/FormNotice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,15 +31,15 @@ export function AdminAlumniForm({ userId, profile }: { userId: string; profile: 
 
   return (
     <form action={formAction} className="grid gap-4 md:grid-cols-2">
-      {state.success ? <p className="md:col-span-2 rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{state.success}</p> : null}
-      {state.error ? <p className="md:col-span-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{state.error}</p> : null}
+      {state.success ? <FormNotice className="md:col-span-2" variant="success">{state.success}</FormNotice> : null}
+      {state.error ? <FormNotice className="md:col-span-2" variant="error">{state.error}</FormNotice> : null}
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="fullName">Nama lengkap</Label>
         <Input id="fullName" name="fullName" defaultValue={profile.fullName} required />
       </div>
       <div className="space-y-2">
         <Label htmlFor="highSchoolMajor">Jurusan SMA</Label>
-        <select id="highSchoolMajor" name="highSchoolMajor" defaultValue={profile.highSchoolMajor} className="h-8 w-full rounded-lg border border-input bg-background px-2 text-sm">
+        <select id="highSchoolMajor" name="highSchoolMajor" defaultValue={profile.highSchoolMajor} className="h-8 w-full border border-input bg-background px-2 text-sm">
           <option value="IPA">IPA</option>
           <option value="IPS">IPS</option>
         </select>

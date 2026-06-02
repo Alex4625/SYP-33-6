@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AlumniCard } from "@/components/shared/AlumniCard";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { FilterBar } from "@/components/shared/FilterBar";
 import { PaginationLinks } from "@/components/shared/PaginationLinks";
@@ -43,12 +44,7 @@ export default async function DashboardDirectoryPage({ searchParams }: { searchP
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold">Direktori Alumni</h1>
-        <p className="mt-2 text-muted-foreground">
-          Cari alumni tanpa meninggalkan area dashboard.
-        </p>
-      </div>
+      <CatalogPageHeader title="Direktori Alumni" description="Cari alumni tanpa meninggalkan area dashboard." tint="sage" />
       <FilterBar action="/dashboard/direktori" searchParams={filterParams} />
       {alumni.length > 0 ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

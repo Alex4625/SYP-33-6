@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ImagePlusIcon } from "lucide-react";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
+import { VisibilityBadge } from "@/components/shared/VisibilityBadge";
 import { buttonVariants, Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminDeleteGalleryPhoto, toggleGalleryVisibility } from "@/lib/actions";
@@ -33,19 +35,19 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">Kelola Galeri</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Atur visibilitas dan hapus foto galeri.</p>
-        </div>
-        <Link href="/admin/galeri/upload" className={cn(buttonVariants())}>
+      <CatalogPageHeader
+        eyebrow="Panel Admin"
+        title="Kelola Galeri"
+        description="Atur visibilitas dan hapus foto galeri."
+        tint="sky"
+        action={<Link href="/admin/galeri/upload" className={cn(buttonVariants())}>
           <ImagePlusIcon className="size-4" />
           Upload Foto
-        </Link>
-      </div>
-      <form className="mb-4 grid gap-3 rounded-lg border bg-card p-4 md:grid-cols-[1fr_180px_auto]">
+        </Link>}
+      />
+      <form className="mb-4 grid gap-3 border border-black bg-card p-4 dark:border-border md:grid-cols-[1fr_180px_auto]">
         <Input name="q" defaultValue={q} placeholder="Cari pengunggah" />
-        <select name="status" defaultValue={status} className="h-8 rounded-lg border border-input bg-background px-2 text-sm">
+        <select name="status" defaultValue={status} className="h-8 border border-input bg-background px-2 text-sm">
           <option value="">Semua</option>
           <option value="public">Publik</option>
           <option value="hidden">Tersembunyi</option>
@@ -54,12 +56,10 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
       </form>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {photos.map((photo) => (
-          <div key={photo.id} className="overflow-hidden rounded-lg border bg-card">
+          <div key={photo.id} className="overflow-hidden border border-black bg-card dark:border-border">
             <div className="relative aspect-[4/3] bg-muted">
               <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
-              <span className={cn("absolute left-2 top-2 rounded-md px-2 py-1 text-xs", photo.isHidden ? "bg-zinc-900/80 text-white" : "bg-emerald-600/90 text-white")}>
-                {photo.isHidden ? "Tersembunyi" : "Publik"}
-              </span>
+              <span className="absolute left-2 top-2"><VisibilityBadge hidden={photo.isHidden} /></span>
             </div>
             <div className="space-y-3 p-3 text-sm">
               <p className="line-clamp-2">{photo.caption ?? "Tanpa keterangan"}</p>
