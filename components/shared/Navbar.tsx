@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboardIcon, LogOutIcon, MenuIcon, UsersRoundIcon, XIcon } from "lucide-react";
+import { CalendarDaysIcon, LayoutDashboardIcon, LogOutIcon, MenuIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 import { DarkModeToggle } from "@/components/shared/DarkModeToggle";
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/alumni", label: "Direktori" },
   { href: "/postingan", label: "Postingan" },
   { href: "/galeri", label: "Galeri" },
+  { href: "/kalender", label: "Kalender" },
 ];
 
 type NavbarViewer = {
@@ -23,9 +24,11 @@ type NavbarViewer = {
 export function Navbar({
   viewer = null,
   signOutAction,
+  todayBirthdayCount = 0,
 }: {
   viewer?: NavbarViewer;
   signOutAction?: () => Promise<void>;
+  todayBirthdayCount?: number;
 }) {
   const [open, setOpen] = useState(false);
   const dashboardHref =
@@ -69,8 +72,14 @@ export function Navbar({
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} prefetch={false} className="px-3 py-2 font-sans text-xs font-bold uppercase text-white hover:bg-white hover:text-black">
+            <Link key={item.href} href={item.href} prefetch={false} className="group px-3 py-2 font-sans text-xs font-bold uppercase text-white hover:bg-white hover:text-black">
               {item.label}
+              {item.href === "/kalender" && todayBirthdayCount > 0 ? (
+                <span className="ml-1 inline-flex items-center gap-1 text-accent group-hover:text-black">
+                  <CalendarDaysIcon className="size-3" aria-hidden="true" />
+                  {todayBirthdayCount}
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>
@@ -91,6 +100,12 @@ export function Navbar({
             {navItems.map((item) => (
               <Link key={item.href} href={item.href} prefetch={false} className="px-3 py-3 font-sans text-xs font-bold uppercase text-white hover:bg-white hover:text-black" onClick={() => setOpen(false)}>
                 {item.label}
+                {item.href === "/kalender" && todayBirthdayCount > 0 ? (
+                  <span className="ml-2 inline-flex items-center gap-1 text-accent">
+                    <CalendarDaysIcon className="size-3" aria-hidden="true" />
+                    {todayBirthdayCount}
+                  </span>
+                ) : null}
               </Link>
             ))}
             <div className={cn("mt-2 grid gap-2", viewer ? "grid-cols-1" : "grid-cols-2")}>

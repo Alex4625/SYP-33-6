@@ -3,6 +3,7 @@ import { UsersRoundIcon } from "lucide-react";
 
 import { Navbar } from "@/components/shared/Navbar";
 import { auth, signOut } from "@/lib/auth";
+import { getTodayBirthdays } from "@/lib/birthdays";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,10 @@ function InstagramLogo({ className }: { className?: string }) {
 }
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
+  const [session, todayBirthdays] = await Promise.all([
+    auth(),
+    getTodayBirthdays(),
+  ]);
 
   async function signOutAction() {
     "use server";
@@ -43,7 +47,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <>
-      <Navbar viewer={viewer} signOutAction={viewer ? signOutAction : undefined} />
+      <Navbar viewer={viewer} signOutAction={viewer ? signOutAction : undefined} todayBirthdayCount={todayBirthdays.length} />
       <main className="flex-1">{children}</main>
       <footer className="border-t border-black bg-background dark:border-border">
         <div className="container grid gap-8 py-10 text-sm md:grid-cols-[minmax(0,1.6fr)_minmax(9rem,0.7fr)_minmax(9rem,0.7fr)]">
@@ -65,6 +69,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <Link href="/alumni" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Direktori</Link>
               <Link href="/postingan" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Postingan</Link>
               <Link href="/galeri" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Galeri</Link>
+              <Link href="/kalender" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Kalender</Link>
             </nav>
           </div>
 
@@ -103,7 +108,7 @@ export default async function PublicLayout({ children }: { children: React.React
         </div>
         <div className="border-t border-black dark:border-border">
           <div className="container py-5 text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} Alumni SYP-33-6. Semua hak dilindungi.</p>
+            <p>&copy; {new Date().getFullYear()} Alumni SYP-33-6. Semua hak dilindungi.</p>
           </div>
         </div>
       </footer>

@@ -4,12 +4,14 @@ import Link from "next/link";
 import { ArrowRightIcon, CameraIcon, ImageIcon, MapPinnedIcon, MessageSquareTextIcon, UsersRoundIcon } from "lucide-react";
 
 import { AlumniCard } from "@/components/shared/AlumniCard";
+import { BirthdayAnnouncement } from "@/components/shared/BirthdayAnnouncement";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { GalleryGrid } from "@/components/shared/GalleryGrid";
 import { IndonesiaDistributionMap } from "@/components/shared/IndonesiaDistributionMap";
 import { PostCard } from "@/components/shared/PostCard";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { buttonVariants } from "@/components/ui/button";
+import { getTodayBirthdays } from "@/lib/birthdays";
 import { getHomeData } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -20,15 +22,21 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const {
-    totalAlumni,
-    totalPosts,
-    totalGallery,
-    latestAlumni,
-    latestPosts,
-    latestGallery,
-    domicileDistribution,
-  } = await getHomeData();
+  const [
+    {
+      totalAlumni,
+      totalPosts,
+      totalGallery,
+      latestAlumni,
+      latestPosts,
+      latestGallery,
+      domicileDistribution,
+    },
+    todayBirthdays,
+  ] = await Promise.all([
+    getHomeData(),
+    getTodayBirthdays(),
+  ]);
 
   return (
     <>
@@ -87,6 +95,10 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <div className="container pt-8">
+        <BirthdayAnnouncement birthdays={todayBirthdays} />
+      </div>
 
       <section className="container py-12">
         <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr]">

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { Edit3Icon, FilePlus2Icon, ImagePlusIcon, UsersRoundIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
+import { BirthdayAnnouncement } from "@/components/shared/BirthdayAnnouncement";
 import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { PostCard } from "@/components/shared/PostCard";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
+import { getTodayBirthdays } from "@/lib/birthdays";
 import { getPostCards, getProfileByUserId } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +21,10 @@ export const metadata: Metadata = {
 
 export default async function AlumniDashboardPage() {
   const session = await auth();
-  const [profile, latestPosts] = await Promise.all([
+  const [profile, latestPosts, todayBirthdays] = await Promise.all([
     getProfileByUserId(session!.user.id),
     getPostCards({ limit: 3, userId: session!.user.id }),
+    getTodayBirthdays(),
   ]);
 
   const quickLinks = [
@@ -39,6 +42,7 @@ export default async function AlumniDashboardPage() {
         description="Kelola profil, bagikan cerita, dan temukan kembali teman sekolah."
         tint="lime"
       />
+      <BirthdayAnnouncement birthdays={todayBirthdays} className="mb-6" />
       <div className="grid gap-4 md:grid-cols-4">
         {quickLinks.map((item) => {
           const Icon = item.icon;

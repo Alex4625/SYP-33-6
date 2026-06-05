@@ -297,7 +297,6 @@ export async function getPublicAlumniProfile(username: string) {
       fullName: alumniProfiles.fullName,
       highSchoolMajor: alumniProfiles.highSchoolMajor,
       collegeMajor: alumniProfiles.collegeMajor,
-      birthPlace: alumniProfiles.birthPlace,
       birthDate: alumniProfiles.birthDate,
       profilePhotoUrl: alumniProfiles.profilePhotoUrl,
       domicileCity: alumniProfiles.domicileCity,

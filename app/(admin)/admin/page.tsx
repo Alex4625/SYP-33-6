@@ -3,12 +3,14 @@ import { Suspense } from "react";
 import { CheckCircle2Icon, Clock3Icon, UserXIcon, UsersRoundIcon } from "lucide-react";
 
 import { AdminCharts } from "@/components/shared/AdminCharts";
+import { BirthdayAnnouncement } from "@/components/shared/BirthdayAnnouncement";
 import { CatalogPageHeader } from "@/components/shared/CatalogPageHeader";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getTodayBirthdays } from "@/lib/birthdays";
 import { getAdminDashboardData } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
 
@@ -28,23 +30,29 @@ function monthSqlKey(date: Date) {
 }
 
 export default async function AdminDashboardPage() {
-  const {
-    total,
-    pending,
-    approved,
-    disabled,
-    postPublic,
-    postHidden,
-    galleryPublic,
-    galleryHidden,
-    majorGroup,
-    collegeGroup,
-    domicileGroup,
-    originGroup,
-    recentUsers,
-    monthlyGroup,
-    now,
-  } = await getAdminDashboardData();
+  const [
+    {
+      total,
+      pending,
+      approved,
+      disabled,
+      postPublic,
+      postHidden,
+      galleryPublic,
+      galleryHidden,
+      majorGroup,
+      collegeGroup,
+      domicileGroup,
+      originGroup,
+      recentUsers,
+      monthlyGroup,
+      now,
+    },
+    todayBirthdays,
+  ] = await Promise.all([
+    getAdminDashboardData(),
+    getTodayBirthdays(),
+  ]);
   const monthlyMap = new Map(monthlyGroup.map((item) => [item.key, item.value]));
 
   const months = Array.from({ length: 12 }, (_, index) => {
@@ -60,6 +68,7 @@ export default async function AdminDashboardPage() {
         description="Ringkasan pertumbuhan dan aktivitas komunitas alumni."
         tint="peach"
       />
+      <BirthdayAnnouncement birthdays={todayBirthdays} className="mb-6" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard title="Total Alumni" value={total} icon={UsersRoundIcon} />
         <StatsCard title="Menunggu Verifikasi" value={pending} icon={Clock3Icon} className="bg-[#fcc20f]" />

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3Icon,
   CameraIcon,
+  CalendarDaysIcon,
   ClipboardCheckIcon,
   FilePlus2Icon,
   FileTextIcon,
@@ -31,7 +32,7 @@ type NavItem = {
   badge?: number;
 };
 
-function workspaceItems(role: "ADMIN" | "ALUMNI", pendingCount: number): NavItem[] {
+function workspaceItems(role: "ADMIN" | "ALUMNI", pendingCount: number, birthdayCount: number): NavItem[] {
   if (role === "ADMIN") {
     return [
       { href: "/admin", label: "Dashboard", icon: HomeIcon },
@@ -39,12 +40,14 @@ function workspaceItems(role: "ADMIN" | "ALUMNI", pendingCount: number): NavItem
       { href: "/admin/alumni", label: "Alumni", icon: UsersIcon },
       { href: "/admin/postingan", label: "Postingan", icon: FileTextIcon },
       { href: "/admin/galeri", label: "Galeri", icon: CameraIcon },
+      { href: "/kalender", label: "Kalender", icon: CalendarDaysIcon, badge: birthdayCount },
       { href: "/admin/log", label: "Audit Log", icon: BarChart3Icon },
     ];
   }
 
   return [
     { href: "/dashboard", label: "Beranda", icon: HomeIcon },
+    { href: "/kalender", label: "Kalender", icon: CalendarDaysIcon, badge: birthdayCount },
     { href: "/dashboard/profil", label: "Edit Profil", icon: PencilIcon },
     { href: "/dashboard/postingan/baru", label: "Buat Postingan", icon: FilePlus2Icon },
     { href: "/dashboard/postingan", label: "Postingan Saya", icon: FileTextIcon },
@@ -101,15 +104,17 @@ function NavLink({
 export function DashboardNavbar({
   role,
   pendingCount = 0,
+  birthdayCount = 0,
   signOutAction,
 }: {
   role: "ADMIN" | "ALUMNI";
   pendingCount?: number;
+  birthdayCount?: number;
   signOutAction: () => Promise<void>;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const items = workspaceItems(role, pendingCount);
+  const items = workspaceItems(role, pendingCount, birthdayCount);
   const homeHref = role === "ADMIN" ? "/admin" : "/dashboard";
 
   return (

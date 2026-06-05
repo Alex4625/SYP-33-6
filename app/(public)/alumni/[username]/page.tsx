@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PostCard } from "@/components/shared/PostCard";
+import { formatBirthdayLabel, parseBirthDateParts } from "@/lib/birthday-utils";
 import { getPublicAlumniProfile } from "@/lib/data";
-import { formatDate } from "@/lib/format";
 
 type Params = { username: string };
 
@@ -46,6 +46,8 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
   const domicile = [alumni.domicileCity, alumni.domicileProvince].filter(Boolean).join(", ");
   const origin = [alumni.originCity, alumni.originProvince].filter(Boolean).join(", ");
   const links = socialLinks(alumni.socialMedia);
+  const birthdayParts = parseBirthDateParts(alumni.birthDate);
+  const birthdayLabel = birthdayParts ? formatBirthdayLabel(birthdayParts.day, birthdayParts.month) : null;
 
   return (
     <div className="container py-10">
@@ -70,7 +72,7 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
               {alumni.collegeMajor}
             </p>
             <div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
-              <p className="flex items-center gap-2"><CalendarIcon className="size-4 text-primary" /> {alumni.birthPlace}, {formatDate(alumni.birthDate)}</p>
+              {birthdayLabel ? <p className="flex items-center gap-2"><CalendarIcon className="size-4 text-primary" /> Ulang tahun: {birthdayLabel}</p> : null}
               {domicile ? <p className="flex items-center gap-2"><MapPinIcon className="size-4 text-primary" /> Domisili: {domicile}</p> : null}
               {origin ? <p className="flex items-center gap-2"><MapPinIcon className="size-4 text-primary" /> Asal: {origin}</p> : null}
             </div>
