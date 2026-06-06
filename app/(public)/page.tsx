@@ -162,7 +162,7 @@ export default async function HomePage() {
           </div>
           {latestAlumni.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {latestAlumni.map((alumni) => <AlumniCard key={alumni.user.username} alumni={alumni} />)}
+              {latestAlumni.map((alumni) => <AlumniCard key={alumni.user.username} alumni={alumni} deferPhoto />)}
             </div>
           ) : (
             <EmptyState title="Belum ada alumni aktif" description="Data alumni akan muncul setelah admin menyetujui registrasi." />

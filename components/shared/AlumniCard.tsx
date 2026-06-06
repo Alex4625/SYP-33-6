@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPinIcon, UserRoundIcon } from "lucide-react";
 
+import { DeferredMediaImage } from "@/components/shared/DeferredMediaImage";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,7 +21,7 @@ export type AlumniCardData = {
   };
 };
 
-export function AlumniCard({ alumni }: { alumni: AlumniCardData }) {
+export function AlumniCard({ alumni, deferPhoto = false }: { alumni: AlumniCardData; deferPhoto?: boolean }) {
   const domicile = [alumni.domicileCity, alumni.domicileProvince].filter(Boolean).join(", ");
 
   return (
@@ -28,7 +29,13 @@ export function AlumniCard({ alumni }: { alumni: AlumniCardData }) {
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="catalog-bevel relative size-16 shrink-0 overflow-hidden border border-black bg-muted dark:border-border">
-            {alumni.profilePhotoUrl ? (
+            {alumni.profilePhotoUrl && deferPhoto ? (
+              <DeferredMediaImage
+                src={alumni.profilePhotoUrl}
+                alt={alumni.fullName}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : alumni.profilePhotoUrl ? (
               <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="64px" />
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground">
