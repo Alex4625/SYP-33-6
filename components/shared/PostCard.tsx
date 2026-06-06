@@ -8,10 +8,13 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatShortDate, truncateText } from "@/lib/format";
 
 const LazyLightbox = dynamic(() => import("@/components/shared/Lightbox").then((mod) => mod.Lightbox), {
+  ssr: false,
+});
+
+const LazyCaptionDialog = dynamic(() => import("@/components/shared/PostCaptionDialog").then((mod) => mod.PostCaptionDialog), {
   ssr: false,
 });
 
@@ -46,6 +49,7 @@ export function PostCard({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [captionOpen, setCaptionOpen] = useState(false);
   const authorName = post.author.alumniProfile?.fullName ?? post.author.username;
+  const dateLabel = formatShortDate(post.createdAt);
   const profilePhoto = post.author.alumniProfile?.profilePhotoUrl;
   const images = useMemo(
     () => [...post.images].sort((a, b) => a.orderIndex - b.orderIndex),
@@ -79,7 +83,7 @@ export function PostCard({
               <Link href={`/alumni/${post.author.username}`} prefetch={false} className="line-clamp-1 text-sm font-semibold hover:text-primary">
                 {authorName}
               </Link>
-              <p className="text-xs text-muted-foreground">{formatShortDate(post.createdAt)}</p>
+              <p className="text-xs text-muted-foreground">{dateLabel}</p>
             </div>
           </div>
           {images[0] ? (
@@ -136,19 +140,15 @@ export function PostCard({
           setIndex={setLightboxIndex}
         />
       ) : null}
-      <Dialog open={captionOpen} onOpenChange={setCaptionOpen}>
-        <DialogContent className="max-h-[calc(100vh-2rem)] sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Caption postingan</DialogTitle>
-            <DialogDescription>
-              {authorName} - {formatShortDate(post.createdAt)}
-            </DialogDescription>
-          </DialogHeader>
-          <p className="max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 text-sm leading-6 text-foreground">
-            {post.caption}
-          </p>
-        </DialogContent>
-      </Dialog>
+      {captionOpen ? (
+        <LazyCaptionDialog
+          open={captionOpen}
+          onOpenChange={setCaptionOpen}
+          authorName={authorName}
+          dateLabel={dateLabel}
+          caption={post.caption}
+        />
+      ) : null}
     </>
   );
 }

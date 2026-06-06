@@ -16,8 +16,8 @@ export function BirthdayAnnouncement({
 
   const message =
     birthdays.length === 1
-      ? `Hari ini ${birthdays[0].fullName} sedang berulang tahun 🎉`
-      : `Hari ini ada ${birthdays.length} alumni yang berulang tahun 🎉`;
+      ? `Hari ini ${birthdays[0].fullName} sedang berulang tahun.`
+      : `Hari ini ada ${birthdays.length} alumni yang berulang tahun.`;
 
   return (
     <section className={cn("border border-black bg-[#fcc20f] p-4 text-black", className)}>

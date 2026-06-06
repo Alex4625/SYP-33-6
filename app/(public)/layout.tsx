@@ -66,10 +66,10 @@ export default async function PublicLayout({ children }: { children: React.React
           <div>
             <p className="font-sans text-xs font-bold uppercase text-foreground">Jelajahi</p>
             <nav className="mt-4 grid gap-3 text-muted-foreground" aria-label="Navigasi footer">
-              <Link href="/alumni" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Direktori</Link>
-              <Link href="/postingan" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Postingan</Link>
-              <Link href="/galeri" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Galeri</Link>
-              <Link href="/kalender" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground">Kalender</Link>
+              <Link href="/alumni" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent">Direktori</Link>
+              <Link href="/postingan" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent">Postingan</Link>
+              <Link href="/galeri" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent">Galeri</Link>
+              <Link href="/kalender" prefetch={false} className="w-fit font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent">Kalender</Link>
             </nav>
           </div>
 
@@ -81,7 +81,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Buka Instagram angkatan 33"
-                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent"
               >
                 <InstagramLogo className="size-4" />
                 <span>33</span>
@@ -91,7 +91,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Buka Instagram kelas 6"
-                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent"
               >
                 <InstagramLogo className="size-4" />
                 <span>6</span>
@@ -101,7 +101,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Buka Instagram almamater"
-                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
+                className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-foreground underline-offset-4 transition-colors hover:text-brand-700 hover:underline dark:hover:text-accent"
               >
                 <InstagramLogo className="size-4" />
                 <span>Almamater</span>
