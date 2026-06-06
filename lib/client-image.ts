@@ -1,8 +1,8 @@
 "use client";
 
-const maxUploadBytes = 1_200_000;
-const maxImageDimension = 1920;
-const webpQualities = [0.82, 0.72, 0.62, 0.52];
+const maxUploadBytes = 850_000;
+const maxImageDimension = 1280;
+const webpQualities = [0.8, 0.72, 0.64, 0.56];
 
 function loadImage(source: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -29,8 +29,6 @@ function webpName(filename: string) {
 }
 
 export async function compressImageFile(file: File) {
-  if (file.size <= maxUploadBytes) return file;
-
   const sourceUrl = URL.createObjectURL(file);
 
   try {
@@ -45,6 +43,7 @@ export async function compressImageFile(file: File) {
 
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
+    context.filter = "blur(0.12px) saturate(1.02) contrast(1.01)";
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
     let smallestBlob: Blob | null = null;

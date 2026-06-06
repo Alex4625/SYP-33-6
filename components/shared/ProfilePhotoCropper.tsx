@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 const allowedTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
-const maxProfileSize = 2 * 1024 * 1024;
+const maxProfileSourceSize = 5 * 1024 * 1024;
 
 function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -30,7 +30,7 @@ function loadImage(src: string) {
 async function cropToSquare(source: string, crop: Area, filename: string) {
   const image = await loadImage(source);
   const canvas = document.createElement("canvas");
-  const size = Math.min(720, Math.max(1, Math.round(crop.width)));
+  const size = 512;
   canvas.width = size;
   canvas.height = size;
 
@@ -39,6 +39,7 @@ async function cropToSquare(source: string, crop: Area, filename: string) {
 
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
+  context.filter = "blur(0.1px) saturate(1.02) contrast(1.01)";
   context.drawImage(
     image,
     crop.x,
@@ -52,11 +53,11 @@ async function cropToSquare(source: string, crop: Area, filename: string) {
   );
 
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Foto tidak dapat diproses.")), "image/jpeg", 0.9);
+    canvas.toBlob((result) => result ? resolve(result) : reject(new Error("Foto tidak dapat diproses.")), "image/webp", 0.82);
   });
 
   const baseName = filename.replace(/\.[^.]+$/, "") || "foto-profil";
-  return new File([blob], `${baseName}-profil.jpg`, { type: "image/jpeg" });
+  return new File([blob], `${baseName}-profil.webp`, { type: "image/webp" });
 }
 
 export function ProfilePhotoCropper({
@@ -94,8 +95,8 @@ export function ProfilePhotoCropper({
       return;
     }
 
-    if (file.size > maxProfileSize) {
-      setError("Ukuran foto profil melebihi batas 2 MB. Pilih file yang lebih kecil.");
+    if (file.size > maxProfileSourceSize) {
+      setError("Ukuran foto profil melebihi batas 5 MB. Pilih file yang lebih kecil.");
       return;
     }
 
@@ -152,7 +153,7 @@ export function ProfilePhotoCropper({
       <div className="min-w-0 flex-1">
         <p className="font-sans text-xs font-bold uppercase">Foto profil</p>
         <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-          Pilih foto lalu atur posisi dan pembesarannya. Foto akan disimpan sesuai potongan yang Anda lihat.
+          Pilih foto lalu atur posisi dan pembesarannya. Foto akan dihaluskan dan disimpan ringan sesuai potongan yang Anda lihat.
         </p>
         <Button type="button" variant="outline" className="mt-3" onClick={() => inputRef.current?.click()}>
           <CameraIcon className="size-4" aria-hidden="true" />

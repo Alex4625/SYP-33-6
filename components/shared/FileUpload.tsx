@@ -103,7 +103,7 @@ export function FileUpload({
           <div className={hasPreviews ? "text-left" : undefined}>
             <p className="font-sans text-xs font-bold uppercase">{processing ? "Menyiapkan foto..." : hasPreviews ? "Tambah foto lain" : label}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              JPG, PNG, WEBP. Maksimal {maxSizeMb} MB{multiple ? `, hingga ${maxFiles} foto` : ""}. Foto besar otomatis dikompres.
+              JPG, PNG, WEBP. Maksimal {maxSizeMb} MB{multiple ? `, hingga ${maxFiles} foto` : ""}. Foto otomatis dihaluskan dan dikompres untuk web.
             </p>
           </div>
         </div>
