@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
 import { formatShortDate } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 
 const LazyLightbox = dynamic(() => import("@/components/shared/Lightbox").then((mod) => mod.Lightbox), {
   ssr: false,
@@ -42,6 +43,7 @@ export function GalleryGrid({ photos, priorityFirst = false }: { photos: Gallery
         {photos.map((photo, photoIndex) => {
           const uploaderName = photo.uploadedBy.alumniProfile?.fullName ?? photo.uploadedBy.username;
           const title = photo.caption ?? "Kenangan SYP-33-6";
+          const thumbnailUrl = mediaVariantUrl(photo.imageUrl, 640, 78) ?? photo.imageUrl;
 
           return (
             <button
@@ -55,7 +57,7 @@ export function GalleryGrid({ photos, priorityFirst = false }: { photos: Gallery
               aria-label={`${title} ${uploaderName}. Buka foto galeri.`}
             >
               <Image
-                src={photo.imageUrl}
+                src={thumbnailUrl}
                 alt={`Foto galeri ${title}`}
                 fill
                 className="object-cover"

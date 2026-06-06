@@ -12,6 +12,7 @@ import { deleteOwnPost } from "@/lib/actions";
 import { auth } from "@/lib/auth";
 import { getPostCards } from "@/lib/data";
 import { formatShortDate, truncateText } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -37,11 +38,14 @@ export default async function MyPostsPage() {
       />
       {posts.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {posts.map((post) => {
+            const imageUrl = post.images[0] ? mediaVariantUrl(post.images[0].imageUrl, 640, 78) : null;
+
+            return (
             <Card key={post.id} className="overflow-hidden">
               <div className="relative aspect-[4/3] bg-muted">
                 {post.images[0] ? (
-                  <Image src={post.images[0].imageUrl} alt="Foto postingan" fill className="object-cover" sizes="320px" />
+                  <Image src={imageUrl ?? post.images[0].imageUrl} alt="Foto postingan" fill className="object-cover" sizes="320px" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground">
                     <FileTextIcon className="size-10" aria-hidden="true" />
@@ -64,7 +68,8 @@ export default async function MyPostsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <EmptyState title="Belum ada postingan" description="Buat postingan pertama untuk membagikan kenangan." />

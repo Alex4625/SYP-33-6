@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { mediaVariantUrl } from "@/lib/media";
 
 const allowedTypes = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
 const maxProfileSourceSize = 5 * 1024 * 1024;
@@ -73,7 +74,7 @@ export function ProfilePhotoCropper({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceName, setSourceName] = useState("foto-profil.jpg");
-  const [previewUrl, setPreviewUrl] = useState(currentPhotoUrl ?? "");
+  const [previewUrl, setPreviewUrl] = useState(mediaVariantUrl(currentPhotoUrl, 320, 78) ?? "");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);

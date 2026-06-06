@@ -4,6 +4,7 @@ import { ImagesIcon, UserRoundIcon } from "lucide-react";
 import { DeferredMediaImage } from "@/components/shared/DeferredMediaImage";
 import type { PostCardData } from "@/components/shared/PostCard";
 import { formatShortDate, truncateText } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 
 export function HomePostPreview({ posts }: { posts: PostCardData[] }) {
   return (
@@ -11,6 +12,7 @@ export function HomePostPreview({ posts }: { posts: PostCardData[] }) {
       {posts.map((post) => {
         const authorName = post.author.alumniProfile?.fullName ?? post.author.username;
         const firstImage = [...post.images].sort((a, b) => a.orderIndex - b.orderIndex)[0];
+        const thumbnailUrl = firstImage ? mediaVariantUrl(firstImage.imageUrl, 640, 78) : null;
 
         return (
           <article key={post.id} className="overflow-hidden border border-black bg-card dark:border-border">
@@ -37,7 +39,7 @@ export function HomePostPreview({ posts }: { posts: PostCardData[] }) {
                 className="group relative block aspect-[4/3] bg-muted outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <DeferredMediaImage
-                  src={firstImage.imageUrl}
+                  src={thumbnailUrl ?? firstImage.imageUrl}
                   alt="Foto utama postingan"
                   className="absolute inset-0 h-full w-full object-cover"
                 />

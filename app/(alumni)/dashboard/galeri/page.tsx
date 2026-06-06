@@ -11,6 +11,7 @@ import { deleteOwnGalleryPhoto } from "@/lib/actions";
 import { auth } from "@/lib/auth";
 import { getOwnGalleryPhotos } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +38,13 @@ export default async function MyGalleryPage() {
 
       {photos.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {photos.map((photo) => (
+          {photos.map((photo) => {
+            const thumbnailUrl = mediaVariantUrl(photo.imageUrl, 640, 78) ?? photo.imageUrl;
+
+            return (
             <article key={photo.id} className="overflow-hidden border border-black bg-card dark:border-border">
               <div className="relative aspect-[4/3] bg-muted">
-                <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
+                <Image src={thumbnailUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
               </div>
               <div className="space-y-3 p-3">
                 <p className="line-clamp-2 text-sm">{photo.caption ?? "Tanpa keterangan"}</p>
@@ -54,7 +58,8 @@ export default async function MyGalleryPage() {
                 />
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <EmptyState

@@ -4,6 +4,7 @@ import { CalendarDaysIcon, UserRoundIcon } from "lucide-react";
 
 import type { SafeBirthdayAlumni } from "@/lib/birthdays";
 import { buttonVariants } from "@/components/ui/button";
+import { mediaVariantUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export function BirthdayList({
@@ -23,12 +24,15 @@ export function BirthdayList({
 
   return (
     <div className="grid gap-3">
-      {birthdays.map((alumni) => (
+      {birthdays.map((alumni) => {
+        const profilePhoto = mediaVariantUrl(alumni.profilePhotoUrl, 160, 76);
+
+        return (
         <article key={`${alumni.username}-${alumni.birthDay}-${alumni.birthMonth}`} className="border border-black bg-background p-3 dark:border-border">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-full border border-black bg-muted dark:border-border">
-              {alumni.profilePhotoUrl ? (
-                <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="64px" />
+              {profilePhoto ? (
+                <Image src={profilePhoto} alt={alumni.fullName} fill className="object-cover" sizes="64px" />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">
                   <UserRoundIcon className="size-7" aria-hidden="true" />
@@ -56,7 +60,8 @@ export function BirthdayList({
             </Link>
           </div>
         </article>
-      ))}
+        );
+      })}
     </div>
   );
 }

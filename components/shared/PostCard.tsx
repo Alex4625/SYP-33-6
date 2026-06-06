@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatShortDate, truncateText } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 
 const LazyLightbox = dynamic(() => import("@/components/shared/Lightbox").then((mod) => mod.Lightbox), {
   ssr: false,
@@ -51,10 +52,15 @@ export function PostCard({
   const authorName = post.author.alumniProfile?.fullName ?? post.author.username;
   const dateLabel = formatShortDate(post.createdAt);
   const profilePhoto = post.author.alumniProfile?.profilePhotoUrl;
+  const profilePhotoThumb = profilePhoto ? mediaVariantUrl(profilePhoto, 96, 76) : null;
   const images = useMemo(
     () => [...post.images].sort((a, b) => a.orderIndex - b.orderIndex),
     [post.images],
   );
+  const coverImage = images[0];
+  const coverImageThumb = coverImage
+    ? mediaVariantUrl(coverImage.imageUrl, compact ? 520 : 960, compact ? 76 : 80)
+    : null;
   const slides = useMemo(
     () =>
       images.map((image, index) => ({
@@ -71,8 +77,8 @@ export function PostCard({
         <CardContent className="p-0">
           <div className={compact ? "flex items-center gap-2.5 p-3" : "flex items-center gap-3 p-4"}>
             <div className={compact ? "relative size-9 overflow-hidden border border-black bg-muted dark:border-border" : "relative size-10 overflow-hidden border border-black bg-muted dark:border-border"}>
-              {profilePhoto ? (
-                <Image src={profilePhoto} alt={authorName} fill className="object-cover" sizes="40px" />
+              {profilePhotoThumb ? (
+                <Image src={profilePhotoThumb} alt={authorName} fill className="object-cover" sizes="40px" />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">
                   <UserRoundIcon className="size-5" aria-hidden="true" />
@@ -86,7 +92,7 @@ export function PostCard({
               <p className="text-xs text-muted-foreground">{dateLabel}</p>
             </div>
           </div>
-          {images[0] ? (
+          {coverImage ? (
             <button
               type="button"
               onClick={() => {
@@ -97,7 +103,7 @@ export function PostCard({
               aria-label={`Buka ${images.length === 1 ? "foto" : `${images.length} foto`} postingan ${authorName}`}
             >
               <Image
-                src={images[0].imageUrl}
+                src={coverImageThumb ?? coverImage.imageUrl}
                 alt="Foto utama postingan"
                 fill
                 className="object-cover"

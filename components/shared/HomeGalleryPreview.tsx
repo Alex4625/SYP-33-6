@@ -3,6 +3,7 @@ import Link from "next/link";
 import { DeferredMediaImage } from "@/components/shared/DeferredMediaImage";
 import type { GalleryPhotoData } from "@/components/shared/GalleryGrid";
 import { formatShortDate } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 
 export function HomeGalleryPreview({ photos }: { photos: GalleryPhotoData[] }) {
   return (
@@ -10,6 +11,7 @@ export function HomeGalleryPreview({ photos }: { photos: GalleryPhotoData[] }) {
       {photos.map((photo) => {
         const uploaderName = photo.uploadedBy.alumniProfile?.fullName ?? photo.uploadedBy.username;
         const title = photo.caption ?? "Kenangan SYP-33-6";
+        const thumbnailUrl = mediaVariantUrl(photo.imageUrl, 640, 78) ?? photo.imageUrl;
 
         return (
           <Link
@@ -20,7 +22,7 @@ export function HomeGalleryPreview({ photos }: { photos: GalleryPhotoData[] }) {
           >
             <span className="relative block aspect-[4/3] bg-muted">
               <DeferredMediaImage
-                src={photo.imageUrl}
+                src={thumbnailUrl}
                 alt={`Foto galeri ${title}`}
                 className="absolute inset-0 h-full w-full object-cover"
               />

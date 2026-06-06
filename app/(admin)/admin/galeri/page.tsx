@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { adminDeleteGalleryPhoto, toggleGalleryVisibility } from "@/lib/actions";
 import { getAdminGallery } from "@/lib/data";
 import { formatShortDate } from "@/lib/format";
+import { mediaVariantUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -55,10 +56,13 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
         <Button type="submit">Filter</Button>
       </form>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {photos.map((photo) => (
+        {photos.map((photo) => {
+          const thumbnailUrl = mediaVariantUrl(photo.imageUrl, 640, 78) ?? photo.imageUrl;
+
+          return (
           <div key={photo.id} className="overflow-hidden border border-black bg-card dark:border-border">
             <div className="relative aspect-[4/3] bg-muted">
-              <Image src={photo.imageUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
+              <Image src={thumbnailUrl} alt={photo.caption ?? "Foto galeri"} fill className="object-cover" sizes="280px" />
               <span className="absolute left-2 top-2"><VisibilityBadge hidden={photo.isHidden} /></span>
             </div>
             <div className="space-y-3 p-3 text-sm">
@@ -91,7 +95,8 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

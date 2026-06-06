@@ -10,6 +10,7 @@ import { FormNotice } from "@/components/shared/FormNotice";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { mediaVariantUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 type ExistingImage = {
@@ -96,9 +97,10 @@ export function EditPostForm({
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {images.map((image) => {
               const removed = removedIds.includes(image.id);
+              const thumbnailUrl = mediaVariantUrl(image.imageUrl, 280, 76) ?? image.imageUrl;
               return (
                 <div key={image.id} className={cn("relative aspect-square overflow-hidden border border-black bg-muted dark:border-border", removed && "opacity-45")}>
-                  <Image src={image.imageUrl} alt="Foto postingan" fill className="object-cover" sizes="140px" />
+                  <Image src={thumbnailUrl} alt="Foto postingan" fill className="object-cover" sizes="140px" />
                   <Button
                     type="button"
                     size="icon-xs"

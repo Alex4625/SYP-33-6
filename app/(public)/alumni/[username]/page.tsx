@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { PostCard } from "@/components/shared/PostCard";
 import { formatBirthdayLabel, parseBirthDateParts } from "@/lib/birthday-utils";
 import { getPublicAlumniProfile } from "@/lib/data";
+import { mediaVariantUrl } from "@/lib/media";
 
 type Params = { username: string };
 
@@ -48,14 +49,15 @@ export default async function AlumniProfilePage({ params }: { params: Promise<Pa
   const links = socialLinks(alumni.socialMedia);
   const birthdayParts = parseBirthDateParts(alumni.birthDate);
   const birthdayLabel = birthdayParts ? formatBirthdayLabel(birthdayParts.day, birthdayParts.month) : null;
+  const profilePhoto = mediaVariantUrl(alumni.profilePhotoUrl, 480, 78);
 
   return (
     <div className="container py-10">
       <Card className="overflow-hidden">
         <CardContent className="grid gap-8 p-6 md:grid-cols-[220px_1fr]">
           <div className="relative aspect-square overflow-hidden rounded-full border bg-muted">
-            {alumni.profilePhotoUrl ? (
-              <Image src={alumni.profilePhotoUrl} alt={alumni.fullName} fill className="object-cover" sizes="220px" priority />
+            {profilePhoto ? (
+              <Image src={profilePhoto} alt={alumni.fullName} fill className="object-cover" sizes="220px" priority />
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 <UserRoundIcon className="size-16" aria-hidden="true" />
