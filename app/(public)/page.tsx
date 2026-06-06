@@ -42,10 +42,11 @@ export default async function HomePage() {
     <>
       <section className="relative overflow-hidden border-b border-black dark:border-border">
         <Image
-          src="/hero-alumni.png"
+          src="/hero-alumni.webp"
           alt="Reuni alumni SYP-33-6"
           fill
           priority
+          fetchPriority="high"
           className="object-cover"
           sizes="100vw"
         />

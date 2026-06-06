@@ -30,7 +30,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
       <CatalogPageHeader title="Postingan Alumni" description="Kumpulan cerita dan kenangan yang dibagikan alumni." tint="salmon" />
       {posts.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {posts.map((post) => <PostCard key={post.id} post={post} compact />)}
+          {posts.map((post, index) => <PostCard key={post.id} post={post} compact priorityImage={index === 0} />)}
         </div>
       ) : (
         <EmptyState title="Belum ada postingan" description="Postingan alumni akan tampil di halaman ini." />

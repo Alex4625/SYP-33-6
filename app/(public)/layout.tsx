@@ -80,6 +80,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/semyopal33_?igsh=M3V3enF0aGd5N3Rs"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Buka Instagram angkatan 33"
                 className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />
@@ -89,6 +90,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/dumpiesssfromus?igsh=MWg1eWZzcm5tZGZhcw=="
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Buka Instagram kelas 6"
                 className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />
@@ -98,6 +100,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 href="https://www.instagram.com/osissmaksemyopal2?igsh=MTlhd28ycjNoNDQyNw=="
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Buka Instagram almamater"
                 className="flex w-fit items-center gap-2 font-sans text-xs font-bold uppercase text-accent transition-colors hover:text-foreground"
               >
                 <InstagramLogo className="size-4" />

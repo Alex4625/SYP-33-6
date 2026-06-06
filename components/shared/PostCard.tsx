@@ -2,14 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ImagesIcon, UserRoundIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Lightbox } from "@/components/shared/Lightbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatShortDate, truncateText } from "@/lib/format";
+
+const LazyLightbox = dynamic(() => import("@/components/shared/Lightbox").then((mod) => mod.Lightbox), {
+  ssr: false,
+});
 
 export type PostCardData = {
   id: string;
@@ -29,7 +33,15 @@ export type PostCardData = {
   }[];
 };
 
-export function PostCard({ post, compact = false }: { post: PostCardData; compact?: boolean }) {
+export function PostCard({
+  post,
+  compact = false,
+  priorityImage = false,
+}: {
+  post: PostCardData;
+  compact?: boolean;
+  priorityImage?: boolean;
+}) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [captionOpen, setCaptionOpen] = useState(false);
@@ -86,6 +98,8 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
                 fill
                 className="object-cover"
                 sizes={compact ? "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 768px) 768px, 100vw"}
+                priority={priorityImage}
+                fetchPriority={priorityImage ? "high" : undefined}
               />
               {images.length > 1 ? (
                 <span className="catalog-bevel absolute right-2 top-2 flex items-center gap-1.5 border border-black bg-accent px-2 py-1 font-sans text-xs font-bold uppercase text-black">
@@ -100,20 +114,28 @@ export function PostCard({ post, compact = false }: { post: PostCardData; compac
               {truncateText(post.caption, compact ? 180 : 300)}
             </p>
             {compact ? (
-              <Button type="button" variant="link" className="mt-1 h-auto p-0 text-xs" onClick={() => setCaptionOpen(true)}>
+              <Button
+                type="button"
+                variant="link"
+                className="mt-1 h-auto p-0 text-xs"
+                onClick={() => setCaptionOpen(true)}
+                aria-label={`Baca caption lengkap postingan ${authorName}`}
+              >
                 Baca selengkapnya
               </Button>
             ) : null}
           </div>
         </CardContent>
       </Card>
-      <Lightbox
-        open={lightboxOpen}
-        close={() => setLightboxOpen(false)}
-        slides={slides}
-        index={lightboxIndex}
-        setIndex={setLightboxIndex}
-      />
+      {lightboxOpen ? (
+        <LazyLightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          slides={slides}
+          index={lightboxIndex}
+          setIndex={setLightboxIndex}
+        />
+      ) : null}
       <Dialog open={captionOpen} onOpenChange={setCaptionOpen}>
         <DialogContent className="max-h-[calc(100vh-2rem)] sm:max-w-xl">
           <DialogHeader>

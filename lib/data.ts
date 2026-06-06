@@ -122,7 +122,7 @@ export async function getHomeData() {
     `),
     getAlumniCards({}, 6, 0, db),
     getPostCards({ limit: 3, offset: 0, publicOnly: true }, db),
-    getGalleryPhotos({ limit: 8, publicOnly: true }, db),
+    getGalleryPhotos({ limit: 4, publicOnly: true }, db),
     db
       .select({
         city: alumniProfiles.domicileCity,
