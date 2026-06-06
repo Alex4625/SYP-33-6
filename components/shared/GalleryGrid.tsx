@@ -52,7 +52,7 @@ export function GalleryGrid({ photos, priorityFirst = false }: { photos: Gallery
                 setOpen(true);
               }}
               className="group relative aspect-[4/3] overflow-hidden border border-black bg-muted text-left outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:border-border"
-              aria-label={`Buka foto galeri ${title} dari ${uploaderName}`}
+              aria-label={`${title} ${uploaderName}. Buka foto galeri.`}
             >
               <Image
                 src={photo.imageUrl}

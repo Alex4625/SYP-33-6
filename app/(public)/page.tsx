@@ -6,9 +6,9 @@ import { ArrowRightIcon, CameraIcon, ImageIcon, MapPinnedIcon, MessageSquareText
 import { AlumniCard } from "@/components/shared/AlumniCard";
 import { BirthdayAnnouncement } from "@/components/shared/BirthdayAnnouncement";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { GalleryGrid } from "@/components/shared/GalleryGrid";
+import { HomeGalleryPreview } from "@/components/shared/HomeGalleryPreview";
+import { HomePostPreview } from "@/components/shared/HomePostPreview";
 import { IndonesiaDistributionMap } from "@/components/shared/IndonesiaDistributionMap";
-import { PostCard } from "@/components/shared/PostCard";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { buttonVariants } from "@/components/ui/button";
 import { getTodayBirthdays } from "@/lib/birthdays";
@@ -144,7 +144,7 @@ export default async function HomePage() {
           </Link>
         </div>
         {latestGallery.length > 0 ? (
-          <GalleryGrid photos={latestGallery} />
+          <HomeGalleryPreview photos={latestGallery} />
         ) : (
           <EmptyState title="Belum ada foto galeri" description="Foto kenangan akan tampil setelah alumni atau admin mengunggahnya." />
         )}
@@ -180,9 +180,7 @@ export default async function HomePage() {
           <Link href="/postingan" prefetch={false} className={cn(buttonVariants({ variant: "outline" }))}>Buka feed</Link>
         </div>
         {latestPosts.length > 0 ? (
-          <div className="grid gap-4 lg:grid-cols-3">
-            {latestPosts.map((post) => <PostCard key={post.id} post={post} compact />)}
-          </div>
+          <HomePostPreview posts={latestPosts} />
         ) : (
           <EmptyState title="Belum ada postingan" description="Postingan alumni akan tampil di sini setelah dibuat." />
         )}

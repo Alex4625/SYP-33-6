@@ -123,7 +123,7 @@ export function PostCard({
                 variant="link"
                 className="mt-1 h-auto p-0 text-xs"
                 onClick={() => setCaptionOpen(true)}
-                aria-label={`Baca caption lengkap postingan ${authorName}`}
+                aria-label={`Baca selengkapnya caption postingan ${authorName}`}
               >
                 Baca selengkapnya
               </Button>

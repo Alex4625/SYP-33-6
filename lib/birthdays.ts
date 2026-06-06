@@ -1,4 +1,5 @@
 import { and, asc, eq, isNotNull, ne } from "drizzle-orm";
+import { cache } from "react";
 
 import { getCloudflareDb, type Database } from "@/db";
 import { alumniProfiles, users, type HighSchoolMajor } from "@/db/schema";
@@ -70,7 +71,7 @@ function safeBirthday(row: BirthdayRow): SafeBirthdayAlumni | null {
   };
 }
 
-async function getApprovedBirthdayRows(database?: Database) {
+async function getApprovedBirthdayRowsUncached(database?: Database) {
   const db = database ?? await getCloudflareDb();
 
   const rows = await db
@@ -99,6 +100,12 @@ async function getApprovedBirthdayRows(database?: Database) {
     const birthday = safeBirthday(row);
     return birthday ? [birthday] : [];
   });
+}
+
+const getApprovedBirthdayRowsCached = cache(async () => getApprovedBirthdayRowsUncached());
+
+async function getApprovedBirthdayRows(database?: Database) {
+  return database ? getApprovedBirthdayRowsUncached(database) : getApprovedBirthdayRowsCached();
 }
 
 export async function getTodayBirthdays(database?: Database) {
